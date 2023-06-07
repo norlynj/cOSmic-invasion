@@ -21,6 +21,7 @@ public class Panel extends JPanel {
     }
 
     public Panel(boolean visible, String imageName, int x, int y, int width, int height) {
+        setOpaque(false);
         setBounds(x, y, width, height);
 
         if (!imageName.equals("")) { //Checks that the specified object reference is not null. This method is designed primarily for doing parameter validation in methods and constructors,

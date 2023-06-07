@@ -39,6 +39,8 @@ public class CosmicInvaders {
         listenToMenu();
 //        listenToHow();
 
+        frame.addKeyListener(game);
+        frame.addMouseListener(game);
         frame.add(contentPane);
         frame.pack();
         frame.setVisible(true);

@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Game extends Panel implements ActionListener, KeyListener, MouseListener {
     public int screenW = this.getWidth(), screenH = this.getHeight();
@@ -270,12 +272,16 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     }
 
     public void generate() {
-        viruses = new Virus[6][4];
+        viruses = new Virus[5][3];
+        String[] colors = {"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green"};
+        ArrayList<String> colorList = new ArrayList<>(Arrays.asList(colors));
+        Collections.shuffle(colorList);
 
         // populate viruses array
         for (int r = 0; r < viruses.length; r++) {
             for (int c = 0; c < viruses[r].length; c++) {
-                viruses[r][c] = new Virus(100 * r + 280, 100 * c - 150, c % 2);
+                String color = colorList.remove(0);
+                viruses[r][c] = new Virus(100 * r + 280, 100 * c - 150, color);
             }
         }
 

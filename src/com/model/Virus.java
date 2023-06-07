@@ -2,16 +2,16 @@ package model;
 public class Virus extends GameObject {
     protected int direction;
     private int version;
-    private int type;
+    private String type;
     protected int vx;
     private int shotChance = 400;
 
     public Virus() {
-        this(100, 100, 0);
+        this(100, 100, "");
     }
 
-    public Virus(int x, int y, int type) {
-        super(x, y, "alien-blue.png", 1.5);
+    public Virus(int x, int y, String type) {
+        super(x, y, "alien-" + type + ".png", 1.5);
         this.type = type;
         direction = 1;
         version = 0;
@@ -33,7 +33,7 @@ public class Virus extends GameObject {
             version = 0;
         }
         // update picture
-        changePicture("alien-blue.png");
+        changePicture("alien-" + type + ".png");
     }
 
     public void respawn() {

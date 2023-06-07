@@ -230,7 +230,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                         a.respawn();
                         tux.incKills();
 
-                        messages.add(new Message("Virus destroyed", Color.BLUE));
+                        messages.add(new Message("Virus destroyed", Color.cyan));
                         i--;
                     }
                 }
@@ -265,7 +265,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                 //explosionSound.play();
                 virusBlasts.remove(i);
                 tux.hit();
-                messages.add(new Message("tux hit", Color.RED));
+                messages.add(new Message("Tux got hit", Color.RED));
                 i--;
             }
         }

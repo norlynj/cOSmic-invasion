@@ -11,11 +11,8 @@ import java.util.Objects;
 
 public class MenuPanel extends Panel{
 
-    private ImageButton musicOnButton, musicOffButton;
-    private ImageButton startButton;
-    private ImageButton instructionsButton;
-    private ImageButton exitButton;
-    private ImageButton aboutButton;
+    private ImageButton musicOnButton, musicOffButton, aboutButton;
+    private ImageButton startButton, instructionsButton, exitButton;
     private Panel aboutPanel;
 
     public MenuPanel(){

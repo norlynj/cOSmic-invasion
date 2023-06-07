@@ -27,7 +27,7 @@ public class GameObject {
         tx = AffineTransform.getTranslateInstance(x, y);
         init(x, y);
 
-        range = 650;
+        range = 280;
     }
 
     protected void changePicture(String fileName) {

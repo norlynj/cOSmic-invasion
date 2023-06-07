@@ -275,7 +275,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         // populate viruses array
         for (int r = 0; r < viruses.length; r++) {
             for (int c = 0; c < viruses[r].length; c++) {
-                viruses[r][c] = new Virus(100 * r + 650, 100 * c - 150, c % 2);
+                viruses[r][c] = new Virus(100 * r + 280, 100 * c - 150, c % 2);
             }
         }
 

@@ -1,6 +1,6 @@
 package model;
 
-public class Blast extends Entity{
+public class Blast extends GameObject {
     protected int type;
     public Blast(int x, int y, String fileName, int type) {
         super(x - 10, y - 30, fileName + ".png", 2);
@@ -16,7 +16,7 @@ public class Blast extends Entity{
         }
     }
 
-    public boolean hit(Entity obj) {
+    public boolean hit(GameObject obj) {
         if (obj.y < -10) {
             return false;
         }

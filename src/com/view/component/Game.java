@@ -24,6 +24,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
     private ImageButton musicOnButton, musicOffButton, pauseButton;
     public Game() {
+
         super("bg/game-panel.png");
         t.start();
         generate();
@@ -163,36 +164,34 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
     private void paints(Graphics g) {
 
-        if (!bossFight) {
-            for (int i = 0; i < messages.size(); i++) {
-                g.setColor(messages.get(i).color());
-                g.drawString(messages.get(i).message(), 10, 20 + 20 * i);
-                messages.get(i).incTime();
-            }
+        for (int i = 0; i < messages.size(); i++) {
+            g.setColor(messages.get(i).color());
+            g.drawString(messages.get(i).message(), 10, 20 + 20 * i);
+            messages.get(i).incTime();
+        }
 
-            // paint explosions
-            for (Explosion e : explosions) {
-                e.paint(g);
-            }
+        // paint explosions
+        for (Explosion e : explosions) {
+            e.paint(g);
+        }
 
-            // paint boost
-            for (FlyingBoost f : boost) {
-                f.paint(g);
-            }
+        // paint boost
+        for (FlyingBoost f : boost) {
+            f.paint(g);
+        }
 
-            // paint viruses
-            for (Virus[] a1 : viruses) {
-                for (Virus a : a1) {
-                    if (a.y() > screenH + 10) {
-                        // explosionSound.play();
-                        // explosionSound.play();
-                        gameOver = true;
-                    }
-                    if (a.shoot()) {
-                        virusBlasts.add(new Blast(a.x() + 40, a.y() + 55, "spark", 1)); // alien center is +40,+55
-                    }
-                    a.paint(g);
+        // paint viruses
+        for (Virus[] a1 : viruses) {
+            for (Virus a : a1) {
+                if (a.y() > screenH + 10) {
+                    // explosionSound.play();
+                    // explosionSound.play();
+                    gameOver = true;
                 }
+                if (a.shoot()) {
+                    virusBlasts.add(new Blast(a.x() + 40, a.y() + 55, "spark", 1)); // alien center is +40,+55
+                }
+                a.paint(g);
             }
         }
 

@@ -1,7 +1,7 @@
 package model;
 
 
-public class FlyingBoost extends Entity {
+public class FlyingBoost extends GameObject {
     String type;
 
     public FlyingBoost(String filename, double scaleSize) {

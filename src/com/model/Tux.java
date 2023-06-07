@@ -1,6 +1,6 @@
 package model;
 
-public class Tux extends Entity {
+public class Tux extends GameObject {
     protected int vx;
     protected int hits;
     protected boolean shooting;

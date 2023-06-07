@@ -1,13 +1,13 @@
 package model;
 
-public class Explosion extends Entity {
+public class Explosion extends GameObject {
 	private int time = 35;
 
 	public Explosion(int x, int y) {
 		super(x, y, "spark.png", 0.75);
 	}
 
-	public Explosion(Entity obj) {
+	public Explosion(GameObject obj) {
 		this(obj.x, obj.y);
 	}
 

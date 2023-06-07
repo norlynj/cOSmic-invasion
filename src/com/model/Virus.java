@@ -1,5 +1,5 @@
 package model;
-public class Virus extends Entity {
+public class Virus extends GameObject {
     protected int direction;
     private int version;
     private int type;

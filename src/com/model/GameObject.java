@@ -9,7 +9,7 @@ import java.awt.geom.AffineTransform;
 import java.net.URL;
 import java.util.Objects;
 
-public class Entity {
+public class GameObject {
     protected Image img;
     protected AffineTransform tx;
     protected int x, y;
@@ -18,7 +18,7 @@ public class Entity {
     protected double width, height;
     protected int range;
 
-    public Entity(int x, int y, String fileName, double scaleSize) {
+    public GameObject(int x, int y, String fileName, double scaleSize) {
         this.scaleSize = scaleSize;
         this.scaleSize = scaleSize;
         this.oX = this.x = x;
@@ -62,17 +62,6 @@ public class Entity {
     protected void init(double a, double b) {
         tx.setToTranslation(a, b);
         tx.scale(scaleSize, scaleSize);
-    }
-
-    protected Image getImage(String path) {
-        Image tempImage = null;
-        try {
-            URL imageURL = Entity.class.getResource(path);
-            tempImage = Toolkit.getDefaultToolkit().getImage(imageURL);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return tempImage;
     }
 
     public String toString() {

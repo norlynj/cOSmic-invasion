@@ -3,6 +3,6 @@ package model;
 public class Memory extends FlyingBoost {
 
     public Memory() {
-        super("memory", 1);
+        super("memory", 2);
     }
 }

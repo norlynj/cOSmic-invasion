@@ -1,9 +1,9 @@
 package model;
 
-public class BitBlast extends Entity{
+public class Blast extends Entity{
     protected int type;
-    public BitBlast(int x, int y, int type) {
-        super(x - 10, y - 30, "spark.png", 2);
+    public Blast(int x, int y, String fileName, int type) {
+        super(x - 10, y - 30, fileName + ".png", 2);
         this.type = type;
     }
 

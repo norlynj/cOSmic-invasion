@@ -12,8 +12,8 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     public int screenW = this.getWidth(), screenH = this.getHeight();
     Virus[][] viruses;
     Tux tux;
-    ArrayList<BitBlast> blasts, aBlasts;
-    ArrayList<FlyingBoost> rewards;
+    ArrayList<Blast> tuxBlasts, virusBlasts;
+    ArrayList<FlyingBoost> boost;
     ArrayList<Explosion> explosions;
     ArrayList<Message> messages;
 
@@ -89,10 +89,10 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         if (rewardTimer / 400 == 1) {
             rewardTimer = 0;
             if (Math.random() > 0.5) {
-                rewards.add(new Ammo());
+                boost.add(new Ammo());
             } else {
                 if (tux.lives() < 10) {
-                    rewards.add(new Memory());
+                    boost.add(new Memory());
                 }
             }
         }
@@ -138,24 +138,24 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
             }
         }
 
-        // removes blasts outside of screen
-        for (int i = 0; i < blasts.size(); i++) {
-            if (blasts.get(i).y() < -50) {
-                blasts.remove(i);
+        // removes tuxBlasts outside of screen
+        for (int i = 0; i < tuxBlasts.size(); i++) {
+            if (tuxBlasts.get(i).y() < -50) {
+                tuxBlasts.remove(i);
                 i--;
             }
         }
-        for (int i = 0; i < aBlasts.size(); i++) {
-            if (aBlasts.get(i).y() > screenH + 50) {
-                aBlasts.remove(i);
+        for (int i = 0; i < virusBlasts.size(); i++) {
+            if (virusBlasts.get(i).y() > screenH + 50) {
+                virusBlasts.remove(i);
                 i--;
             }
         }
 
-        // removes rewards outside of screen
-        for (int i = 0; i < rewards.size(); i++) {
-            if (rewards.get(i).x() > screenW + 50) {
-                rewards.remove(i);
+        // removes boost outside of screen
+        for (int i = 0; i < boost.size(); i++) {
+            if (boost.get(i).x() > screenW + 50) {
+                boost.remove(i);
                 i--;
             }
         }
@@ -175,8 +175,8 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                 e.paint(g);
             }
 
-            // paint rewards
-            for (FlyingBoost f : rewards) {
+            // paint boost
+            for (FlyingBoost f : boost) {
                 f.paint(g);
             }
 
@@ -189,26 +189,26 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                         gameOver = true;
                     }
                     if (a.shoot()) {
-                        aBlasts.add(new BitBlast(a.x() + 40, a.y() + 55, 1)); // alien center is +40,+55
+                        virusBlasts.add(new Blast(a.x() + 40, a.y() + 55, "spark", 1)); // alien center is +40,+55
                     }
                     a.paint(g);
                 }
             }
         }
 
-        // paint tux blasts
-        for (BitBlast b : blasts) {
+        // paint tux tuxBlasts
+        for (Blast b : tuxBlasts) {
             b.paint(g);
         }
 
-        // paint alien blasts
-        for (BitBlast b : aBlasts) {
+        // paint alien tuxBlasts
+        for (Blast b : virusBlasts) {
             b.paint(g);
         }
 
         if (tux.checkShot()) {
-            blasts.add(new BitBlast(tux.x() + 11, tux.y() + 60, 0));
-            blasts.add(new BitBlast(tux.x() + 115, tux.y() + 60, 0));
+            tuxBlasts.add(new Blast(tux.x() + 11, tux.y() + 60, "bit-0", 0));
+            tuxBlasts.add(new Blast(tux.x() + 115, tux.y() + 60, "bit-1", 0));
             tux.incShotsFired();
         }
 
@@ -220,12 +220,12 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         for (int r = 0; r < viruses.length; r++) {
             for (int c = 0; c < viruses[r].length; c++) {
                 Virus a = viruses[r][c];
-                for (int i = 0; i < blasts.size(); i++) {
-                    BitBlast b = blasts.get(i);
+                for (int i = 0; i < tuxBlasts.size(); i++) {
+                    Blast b = tuxBlasts.get(i);
                     if (b.hit(a)) {
                         explosions.add(new Explosion(b));
                         //explosionSound.play();
-                        blasts.remove(i);
+                        tuxBlasts.remove(i);
                         a.respawn();
                         tux.incKills();
 
@@ -237,19 +237,19 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         }
 
         // compare every reward with every blast
-        for (int i = 0; i < blasts.size(); i++) {
-            BitBlast b = blasts.get(i);
-            for (int x = 0; x < rewards.size(); x++) {
-                if (b.hit(rewards.get(x))) {
-                    if (rewards.get(x).isType("ammo")) {
+        for (int i = 0; i < tuxBlasts.size(); i++) {
+            Blast b = tuxBlasts.get(i);
+            for (int x = 0; x < boost.size(); x++) {
+                if (b.hit(boost.get(x))) {
+                    if (boost.get(x).isType("bullet")) {
                         tux.decreaseCooldown();
                         messages.add(new Message("Reload decreased to " + tux.getCooldown()[1], Color.GREEN));
-                    } else if (rewards.get(x).isType("heart")) {
+                    } else if (boost.get(x).isType("memory")) {
                         tux.lives(1);
-                        messages.add(new Message("Health increased", Color.GREEN));
+                        messages.add(new Message("Memory increased", Color.GREEN));
                     }
-                    blasts.remove(i);
-                    rewards.remove(x);
+                    tuxBlasts.remove(i);
+                    boost.remove(x);
                     x--;
                     i--;
                 }
@@ -257,12 +257,12 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         }
 
         // compare tux with every blast
-        for (int i = 0; i < aBlasts.size(); i++) {
-            BitBlast b = aBlasts.get(i);
+        for (int i = 0; i < virusBlasts.size(); i++) {
+            Blast b = virusBlasts.get(i);
             if (b.hit(tux)) {
                 explosions.add(new Explosion(b));
                 //explosionSound.play();
-                aBlasts.remove(i);
+                virusBlasts.remove(i);
                 tux.hit();
                 messages.add(new Message("tux hit", Color.RED));
                 i--;
@@ -281,9 +281,9 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         }
 
         tux = new Tux(screenW / 2, 557);
-        blasts = new ArrayList<BitBlast>();
-        aBlasts = new ArrayList<BitBlast>();
-        rewards = new ArrayList<FlyingBoost>();
+        tuxBlasts = new ArrayList<Blast>();
+        virusBlasts = new ArrayList<Blast>();
+        boost = new ArrayList<FlyingBoost>();
         explosions = new ArrayList<Explosion>();
         messages = new ArrayList<Message>();
 

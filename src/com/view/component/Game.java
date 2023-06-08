@@ -33,18 +33,13 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         initializeButtons();
         setListeners();
         addComponentsToFrame();
-
+        setDoubleBuffered(true);
     }
 
     private void initializeButtons() {
         musicOnButton = new ImageButton("buttons/music-on.png");
         musicOffButton = new ImageButton("buttons/music-off.png");
         pauseButton = new ImageButton("buttons/pause.png");
-
-        musicOnButton.setBounds(939, 22, 40, 54);
-        musicOffButton.setBounds(939, 22, 40, 54);
-        pauseButton.setBounds(995, 30, 73, 40);
-
     }
 
     private void setListeners(){
@@ -70,7 +65,8 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         this.add(pauseButton);
     }
 
-    public void paint(Graphics g) {
+    @Override
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         // END SCREEN
@@ -121,6 +117,9 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         for (int i = 0; i < tux.lives(); i++) {
             g.drawOval(1700 + 20 * i, 980, 10, 10);
         }
+        musicOnButton.setBounds(screenW - 100, 22, 40, 54);
+        musicOffButton.setBounds(screenW - 100, 22, 40, 54);
+        pauseButton.setBounds(screenW - 180, 30, 73, 40);
     }
 
     private void removals() {
@@ -229,7 +228,6 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                         tuxBlasts.remove(i);
                         a.respawn();
                         tux.incKills();
-
                         messages.add(new Message("Virus destroyed", Color.cyan));
                         i--;
                     }

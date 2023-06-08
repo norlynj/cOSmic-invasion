@@ -5,6 +5,7 @@ public class Virus extends GameObject {
     private String type;
     protected int vx;
     private int shotChance = 400;
+    private static int destroyedCount = 0;
 
     public Virus() {
         this(100, 100, "");
@@ -48,6 +49,16 @@ public class Virus extends GameObject {
             return false;
         }
         return (int) (Math.random() * (shotChance) + 1) > shotChance - 1;
+    }
+
+    // Add a method to increment the destroyed count
+    public static void incrementDestroyedCount() {
+        destroyedCount++;
+    }
+
+    // Add a method to get the destroyed count
+    public static int getDestroyedCount() {
+        return destroyedCount;
     }
 
 }

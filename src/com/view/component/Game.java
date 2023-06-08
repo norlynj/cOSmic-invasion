@@ -12,12 +12,14 @@ import java.util.Collections;
 
 public class Game extends Panel implements ActionListener, KeyListener, MouseListener {
     public int screenW = this.getWidth(), screenH = this.getHeight();
-    Virus[][] viruses;
-    Tux tux;
-    ArrayList<Blast> tuxBlasts, virusBlasts;
-    ArrayList<FlyingBoost> boost;
-    ArrayList<Explosion> explosions;
-    ArrayList<Message> messages;
+    private Virus[][] viruses;
+    private Tux tux;
+    private ArrayList<Blast> tuxBlasts, virusBlasts;
+    private ArrayList<FlyingBoost> boost;
+    private ArrayList<Explosion> explosions;
+    private ArrayList<Message> messages;
+    private JLabel levelLabel;
+    private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
 
     Timer t = new Timer(16, this);
     int rewardTimer;
@@ -30,10 +32,41 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         super("bg/game-panel.png");
         t.start();
         generate();
+        initializeLabels();
         initializeButtons();
         setListeners();
         addComponentsToFrame();
         setDoubleBuffered(true);
+    }
+
+    public void generate() {
+        viruses = new Virus[5][3];
+        String[] colors = {"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green"};
+        ArrayList<String> colorList = new ArrayList<>(Arrays.asList(colors));
+        Collections.shuffle(colorList);
+
+        // populate viruses array
+        for (int r = 0; r < viruses.length; r++) {
+            for (int c = 0; c < viruses[r].length; c++) {
+                String color = colorList.remove(0);
+                viruses[r][c] = new Virus(100 * r + 280, 100 * c - 150, color);
+            }
+        }
+
+        tux = new Tux(screenW / 2, 557);
+        tuxBlasts = new ArrayList<Blast>();
+        virusBlasts = new ArrayList<Blast>();
+        boost = new ArrayList<FlyingBoost>();
+        explosions = new ArrayList<Explosion>();
+        messages = new ArrayList<Message>();
+
+        rewardTimer = 0;
+        playing = true;
+        gameOver = false;
+    }
+
+    private void initializeLabels() {
+        levelLabel = new Label(levels[0]);
     }
 
     private void initializeButtons() {
@@ -63,6 +96,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         this.add(musicOffButton);
         this.add(musicOnButton);
         this.add(pauseButton);
+        this.add(levelLabel);
     }
 
     @Override
@@ -120,6 +154,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         musicOnButton.setBounds(screenW - 100, 22, 40, 54);
         musicOffButton.setBounds(screenW - 100, 22, 40, 54);
         pauseButton.setBounds(screenW - 180, 30, 73, 40);
+        levelLabel.setBounds(18, 22, 370, 33);
     }
 
     private void removals() {
@@ -167,7 +202,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
         for (int i = 0; i < messages.size(); i++) {
             g.setColor(messages.get(i).color());
-            g.drawString(messages.get(i).message(), 10, 20 + 20 * i);
+            g.drawString(messages.get(i).message(), 18, 110 + 20 * i);
             messages.get(i).incTime();
         }
 
@@ -267,32 +302,6 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                 i--;
             }
         }
-    }
-
-    public void generate() {
-        viruses = new Virus[5][3];
-        String[] colors = {"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green"};
-        ArrayList<String> colorList = new ArrayList<>(Arrays.asList(colors));
-        Collections.shuffle(colorList);
-
-        // populate viruses array
-        for (int r = 0; r < viruses.length; r++) {
-            for (int c = 0; c < viruses[r].length; c++) {
-                String color = colorList.remove(0);
-                viruses[r][c] = new Virus(100 * r + 280, 100 * c - 150, color);
-            }
-        }
-
-        tux = new Tux(screenW / 2, 557);
-        tuxBlasts = new ArrayList<Blast>();
-        virusBlasts = new ArrayList<Blast>();
-        boost = new ArrayList<FlyingBoost>();
-        explosions = new ArrayList<Explosion>();
-        messages = new ArrayList<Message>();
-
-        rewardTimer = 0;
-        playing = true;
-        gameOver = false;
     }
 
 

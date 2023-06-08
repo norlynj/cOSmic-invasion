@@ -27,7 +27,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     Image memoryImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
 
     Timer t = new Timer(16, this);
-    int rewardTimer;
+    private int rewardTimer, currentLevel;
     boolean playing, gameOver;
     boolean bossFight;
 
@@ -44,6 +44,8 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     }
 
     public void generate(int level) {
+        currentLevel = level;
+
         tux = new Tux(screenW / 2, 557);
         tuxBlasts = new ArrayList<Blast>();
         virusBlasts = new ArrayList<Blast>();
@@ -59,7 +61,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         cutSceneImage.setIcon(cutSceneBG);
         cutSceneImage.setVisible(true);
         isCutsceneShowing = true;
-        Timer timer = new Timer(2000, new ActionListener() {
+        Timer timer = new Timer(3000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cutSceneImage.setVisible(false);
@@ -147,11 +149,12 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        drawButtonsAndsLabels();
 
-        if (tux.getKills() == 20) {
+        if (tux.getKills() == 20 && currentLevel == 2) {
             generate(3);
             return;
-        } else if (tux.getKills() == 15) {
+        } else if (tux.getKills() == 15 && currentLevel == 1) {
             generate(2);
             return;
         }
@@ -166,7 +169,6 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
             checkCollisions();
             updateBlastSpeedBar(g);
             updateRewardTimer();
-            drawButtonsAndsLabels();
         } else {
             drawGameOver(g);
         }
@@ -200,7 +202,6 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
             for (Virus v : v1) {
                 if (v.isAlive()) {
                     if (v.y() > screenH + 10) {
-                        // explosionSound.play();
                         // explosionSound.play();
                         gameOver = true;
                     }

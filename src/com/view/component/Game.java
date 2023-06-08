@@ -20,6 +20,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     private ArrayList<Message> messages;
     private JLabel levelLabel, livesLabel, killLabel;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
+    private int currentLevel = 1;
 
     Timer t = new Timer(16, this);
     int rewardTimer;
@@ -28,8 +29,10 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
     private ImageButton musicOnButton, musicOffButton, pauseButton;
     public Game() {
-
         super("bg/game-panel.png");
+
+        currentLevel = 1;
+
         t.start();
         generate();
         initializeLabels();
@@ -110,18 +113,17 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         if (!playing) {
             return;
         }
-
-        if (playing && !gameOver) {
+        if (tux.lives() > 0 && !gameOver) {
             drawSprites(g);
             removals();
             checkCollisions();
             updateBlastSpeedBar(g);
-            updateLivesAndKills(g);
             updateRewardTimer();
             drawButtonsAndsLabels();
-        } else if (gameOver) {
+        } else {
             drawGameOver(g);
         }
+        updateLivesAndKills(g);
 
         Toolkit.getDefaultToolkit().sync();
 
@@ -150,15 +152,17 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         // paint viruses
         for (Virus[] a1 : viruses) {
             for (Virus a : a1) {
-                if (a.y() > screenH + 10) {
-                    // explosionSound.play();
-                    // explosionSound.play();
-                    gameOver = true;
+                if (a.isAlive()) {
+                    if (a.y() > screenH + 10) {
+                        // explosionSound.play();
+                        // explosionSound.play();
+                        gameOver = true;
+                    }
+                    if (a.shoot()) {
+                        virusBlasts.add(new Blast(a.x() + 40, a.y() + 55, "spark", 1)); // alien center is +40,+55
+                    }
+                    a.paint(g);
                 }
-                if (a.shoot()) {
-                    virusBlasts.add(new Blast(a.x() + 40, a.y() + 55, "spark", 1)); // alien center is +40,+55
-                }
-                a.paint(g);
             }
         }
 
@@ -175,7 +179,6 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         if (tux.checkShot()) {
             tuxBlasts.add(new Blast(tux.x() + 11, tux.y() + 60, "bit-0", 0));
             tuxBlasts.add(new Blast(tux.x() + 115, tux.y() + 60, "bit-1", 0));
-            tux.incShotsFired();
         }
 
         tux.paint(g);
@@ -244,9 +247,13 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                         explosions.add(new Explosion(b));
                         //explosionSound.play();
                         tuxBlasts.remove(i);
-                        a.respawn();
-                        tux.incKills();
-                        messages.add(new Message("Virus destroyed", Color.cyan));
+                        a.hit();
+                        System.out.println(a.getShotsRequired());
+                        if (a.getShotsRequired() <= 0) {
+                            a.setAlive(false);
+                            tux.increaseKills();
+                            messages.add(new Message("Virus destroyed", Color.cyan));
+                        }
                         i--;
                     }
                 }
@@ -262,7 +269,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                         tux.decreaseCooldown();
                         messages.add(new Message("Reload decreased to " + tux.getCooldown()[1], Color.GREEN));
                     } else if (boost.get(x).isType("memory")) {
-                        tux.lives(1);
+                        tux.addLife(1);
                         messages.add(new Message("Memory increased", Color.GREEN));
                     }
                     tuxBlasts.remove(i);
@@ -300,7 +307,6 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         g.setFont(new Font("Dialog", Font.PLAIN, 20));
         g.setColor(Color.GREEN);
         g.drawString(tux.getKills() + "", 120, 115);
-        System.out.println(tux.getKills());
 
         // update Lives
         g.setColor(Color.RED);

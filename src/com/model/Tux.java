@@ -78,7 +78,7 @@ public class Tux extends GameObject {
         return kills;
     }
 
-    public void incKills() {
+    public void increaseKills() {
         kills++;
     }
 
@@ -86,16 +86,8 @@ public class Tux extends GameObject {
         return lives;
     }
 
-    public void lives(int updown) {
+    public void addLife(int updown) {
         this.lives += 1 * updown;
-    }
-
-    public int getShotsFired() {
-        return shotsFired;
-    }
-
-    public void incShotsFired() {
-        shotsFired += 2;
     }
 
     public int vx() {

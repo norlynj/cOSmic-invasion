@@ -109,6 +109,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        paintLivesandKills(g);
 
         if (!playing) {
             return;
@@ -123,7 +124,6 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         } else {
             drawGameOver(g);
         }
-        updateLivesAndKills(g);
 
         Toolkit.getDefaultToolkit().sync();
 
@@ -150,18 +150,18 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         }
 
         // paint viruses
-        for (Virus[] a1 : viruses) {
-            for (Virus a : a1) {
-                if (a.isAlive()) {
-                    if (a.y() > screenH + 10) {
+        for (Virus[] v1 : viruses) {
+            for (Virus v : v1) {
+                if (v.isAlive()) {
+                    if (v.y() > screenH + 10) {
                         // explosionSound.play();
                         // explosionSound.play();
                         gameOver = true;
                     }
-                    if (a.shoot()) {
-                        virusBlasts.add(new Blast(a.x() + 40, a.y() + 55, "spark", 1)); // alien center is +40,+55
+                    if (v.shoot()) {
+                        virusBlasts.add(new Blast(v.x() + 40, v.y() + 55, "spark", 1)); // alien center is +40,+55
                     }
-                    a.paint(g);
+                    v.paint(g);
                 }
             }
         }
@@ -240,17 +240,17 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         // compare every alien with every tux blast
         for (int r = 0; r < viruses.length; r++) {
             for (int c = 0; c < viruses[r].length; c++) {
-                Virus a = viruses[r][c];
+                Virus v = viruses[r][c];
                 for (int i = 0; i < tuxBlasts.size(); i++) {
                     Blast b = tuxBlasts.get(i);
-                    if (b.hit(a)) {
+                    if (b.hit(v)) {
                         explosions.add(new Explosion(b));
                         //explosionSound.play();
                         tuxBlasts.remove(i);
-                        a.hit();
-                        System.out.println(a.getShotsRequired());
-                        if (a.getShotsRequired() <= 0) {
-                            a.setAlive(false);
+                        v.hit();
+                        System.out.println(v.getShotsRequired());
+                        if (v.getShotsRequired() == 0 && v.isAlive()) {
+                            v.setAlive(false);
                             tux.increaseKills();
                             messages.add(new Message("Virus destroyed", Color.cyan));
                         }
@@ -302,7 +302,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                 (tux.getCooldown()[1] - tux.getCooldown()[0]) * (200 / tux.getCooldown()[1]), 10);
     }
 
-    private void updateLivesAndKills(Graphics g) {
+    private void paintLivesandKills(Graphics g) {
         // update kill
         g.setFont(new Font("Dialog", Font.PLAIN, 20));
         g.setColor(Color.GREEN);

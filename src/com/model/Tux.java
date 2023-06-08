@@ -4,7 +4,7 @@ public class Tux extends GameObject {
     protected int vx;
     protected int hits;
     protected boolean shooting;
-    protected int[] cooldown = { 0, 50 };
+    protected int[] reloadTime = { 0, 50 };
     protected int kills;
     protected int lives;
     protected int shotsFired;
@@ -35,8 +35,8 @@ public class Tux extends GameObject {
             changePicture("Tux.png");
         }
 
-        if (cooldown[0] > 0) {
-            cooldown[0]--;
+        if (reloadTime[0] > 0) {
+            reloadTime[0]--;
         }
     }
 
@@ -53,16 +53,16 @@ public class Tux extends GameObject {
     }
 
     public boolean checkShot() {
-        if (shooting && cooldown[0] == 0) {
-            cooldown[0] = cooldown[1];
+        if (shooting && reloadTime[0] == 0) {
+            reloadTime[0] = reloadTime[1];
             return true;
         }
         return false;
     }
 
-    public void decreaseCooldown() {
-        if (cooldown[1] > 1) {
-            cooldown[1] /= 2;
+    public void decreaseReloadTime() {
+        if (reloadTime[1] > 1) {
+            reloadTime[1] /= 2;
         }
     }
 
@@ -71,7 +71,7 @@ public class Tux extends GameObject {
     }
 
     public int[] getCooldown() {
-        return cooldown;
+        return reloadTime;
     }
 
     public int getKills() {

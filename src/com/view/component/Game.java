@@ -32,32 +32,16 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     private ImageButton musicOnButton, musicOffButton, pauseButton;
     public Game() {
         super("bg/game-panel.png");
-
-        currentLevel = 1;
-
         t.start();
-        generate();
         initializeLabels();
+        generate(1);
         initializeButtons();
         setListeners();
         addComponentsToFrame();
         setDoubleBuffered(true);
     }
 
-    public void generate() {
-        viruses = new Virus[5][3];
-        String[] colors = {"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green"};
-        ArrayList<String> colorList = new ArrayList<>(Arrays.asList(colors));
-        Collections.shuffle(colorList);
-
-        // populate viruses array
-        for (int r = 0; r < viruses.length; r++) {
-            for (int c = 0; c < viruses[r].length; c++) {
-                String color = colorList.remove(0);
-                viruses[r][c] = new Virus(100 * r + 280, 100 * c - 150, color);
-            }
-        }
-
+    public void generate(int level) {
         tux = new Tux(screenW / 2, 557);
         tuxBlasts = new ArrayList<Blast>();
         virusBlasts = new ArrayList<Blast>();
@@ -68,6 +52,32 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         rewardTimer = 0;
         playing = true;
         gameOver = false;
+
+
+        String[] colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green"};
+        levelLabel.setText(levels[0]);
+        viruses = new Virus[5][3];
+
+        if (level == 2) {
+            viruses = new Virus[5][4];
+            levelLabel.setText(levels[1]);
+            colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green", "yellow", "yellow", "yellow", "yellow", "yellow"};
+            tux.decreaseReloadTime();
+        } else if (level == 3) {
+            viruses = new Virus[6][5];
+            levelLabel.setText(levels[2]);
+            colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green", "yellow", "yellow", "yellow", "yellow", "yellow", "orange", "orange", "orange", "orange", "orange", "red", "red", "red", "red", "red"};
+        }
+        ArrayList<String> colorList = new ArrayList<>(Arrays.asList(colors));
+        Collections.shuffle(colorList);
+
+        // populate viruses array
+        for (int r = 0; r < viruses.length; r++) {
+            for (int c = 0; c < viruses[r].length; c++) {
+                String color = colorList.remove(0);
+                viruses[r][c] = new Virus(100 * r + 280, 100 * c - 150, color);
+            }
+        }
     }
 
     private void initializeLabels() {
@@ -111,6 +121,14 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        if (tux.getKills() >= 20) {
+            generate(2);
+            return;
+        } else if (tux.getKills() >= 15) {
+            generate(2);
+            return;
+        }
         paintLivesandKills(g);
 
         if (!playing) {
@@ -269,7 +287,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
             for (int x = 0; x < boost.size(); x++) {
                 if (b.hit(boost.get(x))) {
                     if (boost.get(x).isType("bullet")) {
-                        tux.decreaseCooldown();
+                        tux.decreaseReloadTime();
                         messages.add(new Message("Reload decreased to " + tux.getCooldown()[1], Color.GREEN));
                     } else if (boost.get(x).isType("memory")) {
                         tux.addLife(1);
@@ -327,7 +345,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
             if (Math.random() > 0.5) {
                 boost.add(new Ammo());
             } else {
-                if (tux.lives() < 10) {
+                if (tux.lives() < 3) {
                     boost.add(new Memory());
                 }
             }
@@ -362,7 +380,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                 tux.setShooting(true);
                 break;
             case 27: // ESC
-                generate();
+                generate(1);
                 break;
             default:
 //			 System.out.println("Unrecognized, key code: " + arg0.getKeyCode());

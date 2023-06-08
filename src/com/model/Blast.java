@@ -2,18 +2,30 @@ package model;
 
 public class Blast extends GameObject {
     protected int type;
+    private int bombSpeed;
+    private int ammoSpeed;
     public Blast(int x, int y, String fileName, int type) {
         super(x - 10, y - 30, fileName + ".png", 1.2);
         this.type = type;
+
+        ammoSpeed = 15;
+        bombSpeed = 10;
     }
 
     public void move() {
-        int v = 20;
         if (type == 0) {
-            y -= v;
+            y -= ammoSpeed;
         } else if (type == 1) {
-            y += v;
+            y += bombSpeed;
         }
+    }
+
+    public void setBombSpeed(int bombSpeed) {
+        this.bombSpeed = bombSpeed;
+    }
+
+    public void setAmmoSpeed(int ammoSpeed) {
+        this.ammoSpeed = ammoSpeed;
     }
 
     public boolean hit(GameObject obj) {

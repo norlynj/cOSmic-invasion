@@ -4,7 +4,7 @@ public class Virus extends GameObject {
     protected int direction;
     private int version;
     private String type;
-    protected int vx;
+    protected int speed;
     private int shotChance = 400;
     private static int destroyedCount = 0;
     private int shotsRequired; // New instance variable
@@ -19,7 +19,7 @@ public class Virus extends GameObject {
         this.type = type;
         direction = 1;
         version = 0;
-        vx = 5;
+        speed = 2;
         shotsRequired = determineShotsRequired(type);
         alive = true;
     }
@@ -31,7 +31,7 @@ public class Virus extends GameObject {
             y += 20;
         }
         // Go left/right
-        x += vx * direction;
+        x += speed * direction;
 
         // Toggle through versions of alien type
         version++;
@@ -45,8 +45,6 @@ public class Virus extends GameObject {
     public void moveOutOfScreen() {
         // Max = 750, min = 250
         y = -1 * ((int) (Math.random() * 701) + 250);
-        vx++;
-        shotChance -= 50;
     }
 
     public boolean shoot() {
@@ -79,4 +77,10 @@ public class Virus extends GameObject {
     public boolean isAlive() {
         return alive;
     }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
+    
 }

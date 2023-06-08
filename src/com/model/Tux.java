@@ -18,7 +18,7 @@ public class Tux extends GameObject {
         range += 50;
 
         kills = 0;
-        lives = 5;
+        lives = 3;
         shotsFired = 0;
     }
 

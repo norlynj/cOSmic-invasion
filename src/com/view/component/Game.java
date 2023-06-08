@@ -9,6 +9,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 
 public class Game extends Panel implements ActionListener, KeyListener, MouseListener {
     public int screenW = this.getWidth(), screenH = this.getHeight();
@@ -309,9 +310,12 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         g.drawString(tux.getKills() + "", 120, 115);
 
         // update Lives
+        Graphics2D g2d = (Graphics2D) g;
+        Image img = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
         g.setColor(Color.RED);
         for (int i = 0; i < tux.lives(); i++) {
-            g.drawOval(120 + 20 * i, 70, 10, 10);
+            g2d.drawImage(img, 120 + 30 * i, 60, this);
+
         }
     }
 

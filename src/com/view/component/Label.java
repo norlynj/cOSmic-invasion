@@ -19,15 +19,10 @@ public class Label extends JLabel {
     public Label(String text, int fontSize, boolean multiLine, int alignment) {
         setFont(new Font("Arial", Font.BOLD, fontSize));
         setForeground(new Color(255, 255, 255));
-
-        center = false;
-        if (alignment == SwingConstants.CENTER) {
-            center = true;
-        }
         this.multiLine = multiLine;
 
         //sets the horizontal alignment of the label
-        setHorizontalAlignment(alignment);
+        setHorizontalAlignment(SwingConstants.LEFT);
         setVerticalAlignment(SwingConstants.CENTER);
         setText(text);
     }

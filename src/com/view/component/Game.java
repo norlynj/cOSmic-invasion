@@ -20,8 +20,10 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     private ArrayList<Explosion> explosions;
     private ArrayList<Message> messages;
     private JLabel levelLabel, livesLabel, killLabel;
+    private ImageIcon cutSceneBG;
+    private JLabel cutSceneImage;
+    boolean isCutsceneShowing = true;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
-    private int currentLevel = 1;
     Image memoryImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
 
     Timer t = new Timer(16, this);
@@ -53,6 +55,20 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         playing = true;
         gameOver = false;
 
+        cutSceneBG = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/lvl" + level + "-cutscene.png")));
+        cutSceneImage.setIcon(cutSceneBG);
+        cutSceneImage.setVisible(true);
+        isCutsceneShowing = true;
+        Timer timer = new Timer(2000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cutSceneImage.setVisible(false);
+                isCutsceneShowing = false;
+            }
+        });
+        timer.setRepeats(false);
+        timer.start();
+
 
         String[] colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green"};
         levelLabel.setText(levels[0]);
@@ -62,7 +78,6 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
             viruses = new Virus[5][4];
             levelLabel.setText(levels[1]);
             colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green", "yellow", "yellow", "yellow", "yellow", "yellow"};
-            tux.decreaseReloadTime();
         } else if (level == 3) {
             viruses = new Virus[6][5];
             levelLabel.setText(levels[2]);
@@ -75,7 +90,12 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         for (int r = 0; r < viruses.length; r++) {
             for (int c = 0; c < viruses[r].length; c++) {
                 String color = colorList.remove(0);
-                viruses[r][c] = new Virus(100 * r + 280, 100 * c - 150, color);
+                viruses[r][c] = new Virus(100 * r + 280, 100 * c - 100, color);
+                if (level == 2) {
+                    viruses[r][c].setSpeed(3);
+                } else if (level == 3) {
+                    viruses[r][c].setSpeed(5);
+                }
             }
         }
     }
@@ -84,6 +104,11 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         levelLabel = new Label(levels[0]);
         livesLabel = new Label("Lives: ");
         killLabel = new Label("Kills: ");
+        cutSceneBG = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/lvl1-cutscene.png")));
+
+        cutSceneImage = new JLabel();
+        cutSceneImage.setBounds(0, 0, 1100, 800);
+        cutSceneImage.setIcon(cutSceneBG);
     }
 
     private void initializeButtons() {
@@ -116,6 +141,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         this.add(levelLabel);
         this.add(livesLabel);
         this.add(killLabel);
+        this.add(cutSceneImage);
     }
 
     @Override
@@ -123,7 +149,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         super.paintComponent(g);
 
         if (tux.getKills() >= 20) {
-            generate(2);
+            generate(3);
             return;
         } else if (tux.getKills() >= 15) {
             generate(2);
@@ -131,7 +157,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         }
         paintLivesandKills(g);
 
-        if (!playing) {
+        if (!playing || isCutsceneShowing) {
             return;
         }
         if (tux.lives() > 0 && !gameOver) {

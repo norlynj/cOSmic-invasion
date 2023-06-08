@@ -27,9 +27,9 @@ public class MenuPanel extends Panel{
         aboutButton = new ImageButton("buttons/about.png");
         aboutPanel = new Panel("bg/info-hover-label.png");
 
-        startButton.setBounds(188, 400, 145, 63);
-        instructionsButton.setBounds(188, 489, 317, 63);
-        exitButton.setBounds(188, 578, 104, 63);
+        startButton.setBounds(188, 400, 250, 63);
+        instructionsButton.setBounds(188, 489, 400, 63);
+        exitButton.setBounds(188, 578, 200, 63);
         musicOnButton.setBounds(939, 22, 40, 54);
         musicOffButton.setBounds(939, 22, 40, 54);
         aboutButton.setBounds(995, 30, 73, 40);

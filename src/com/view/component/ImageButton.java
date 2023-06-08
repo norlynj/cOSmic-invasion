@@ -26,6 +26,7 @@ public class ImageButton extends JButton {
         setBackground(new Color(0, 0, 0, 0));
         setOpaque(false);
         this.setIcon(imageName);
+        setHorizontalAlignment(SwingConstants.LEFT);
         setFocusable(false);
         setUI(new BasicButtonUI() {
             @Override

@@ -42,6 +42,13 @@ public class Virus extends GameObject {
         changePicture("alien-" + type + ".png");
     }
 
+    public void moveOutOfScreen() {
+        // Max = 750, min = 250
+        y = -1 * ((int) (Math.random() * 701) + 250);
+        vx++;
+        shotChance -= 50;
+    }
+
     public boolean shoot() {
         if (y < -10) {
             return false;

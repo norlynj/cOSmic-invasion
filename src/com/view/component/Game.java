@@ -22,6 +22,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     private JLabel levelLabel, livesLabel, killLabel;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
     private int currentLevel = 1;
+    Image memoryImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
 
     Timer t = new Timer(16, this);
     int rewardTimer;
@@ -252,6 +253,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                         System.out.println(v.getShotsRequired());
                         if (v.getShotsRequired() == 0 && v.isAlive()) {
                             v.setAlive(false);
+                            v.moveOutOfScreen();
                             tux.increaseKills();
                             messages.add(new Message("Virus destroyed", Color.cyan));
                         }
@@ -311,10 +313,9 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
         // update Lives
         Graphics2D g2d = (Graphics2D) g;
-        Image img = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
         g.setColor(Color.RED);
         for (int i = 0; i < tux.lives(); i++) {
-            g2d.drawImage(img, 120 + 30 * i, 60, this);
+            g2d.drawImage(memoryImage, 120 + 30 * i, 60, this);
 
         }
     }

@@ -18,7 +18,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     private ArrayList<FlyingBoost> boost;
     private ArrayList<Explosion> explosions;
     private ArrayList<Message> messages;
-    private JLabel levelLabel;
+    private JLabel levelLabel, livesLabel, killLabel;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
 
     Timer t = new Timer(16, this);
@@ -67,6 +67,8 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
     private void initializeLabels() {
         levelLabel = new Label(levels[0]);
+        livesLabel = new Label("Lives: ");
+        killLabel = new Label("Kills: ");
     }
 
     private void initializeButtons() {
@@ -97,69 +99,101 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         this.add(musicOnButton);
         this.add(pauseButton);
         this.add(levelLabel);
+        this.add(livesLabel);
+        this.add(killLabel);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // END SCREEN
+        if (!playing) {
+            return;
+        }
+
+        if (playing && !gameOver) {
+            drawSprites(g);
+            removals();
+            checkCollisions();
+            updateCoolDownBar(g);
+            updateLivesAndKills(g);
+            updateRewardTimer();
+            drawButtonsAndsLabels();
+        } else if (gameOver) {
+            drawGameOver(g);
+        }
+
+        Toolkit.getDefaultToolkit().sync();
+
+    }
+
+    private void drawSprites(Graphics g) {
+
+        // paint messages
+        g.setFont(new Font("Dialog", Font.PLAIN, 20));
+        for (int i = 0; i < messages.size(); i++) {
+            g.setColor(messages.get(i).color());
+            g.drawString(messages.get(i).message(), 18, 160 + 20 * i);
+            messages.get(i).incTime();
+        }
+
+        // paint explosions
+        for (Explosion e : explosions) {
+            e.paint(g);
+        }
+
+        // paint boost
+        for (FlyingBoost f : boost) {
+            f.paint(g);
+        }
+
+        // paint viruses
+        for (Virus[] a1 : viruses) {
+            for (Virus a : a1) {
+                if (a.y() > screenH + 10) {
+                    // explosionSound.play();
+                    // explosionSound.play();
+                    gameOver = true;
+                }
+                if (a.shoot()) {
+                    virusBlasts.add(new Blast(a.x() + 40, a.y() + 55, "spark", 1)); // alien center is +40,+55
+                }
+                a.paint(g);
+            }
+        }
+
+        // paint tuxBlasts
+        for (Blast b : tuxBlasts) {
+            b.paint(g);
+        }
+
+        // paint alien tuxBlasts
+        for (Blast b : virusBlasts) {
+            b.paint(g);
+        }
+
+        if (tux.checkShot()) {
+            tuxBlasts.add(new Blast(tux.x() + 11, tux.y() + 60, "bit-0", 0));
+            tuxBlasts.add(new Blast(tux.x() + 115, tux.y() + 60, "bit-1", 0));
+            tux.incShotsFired();
+        }
+
+        tux.paint(g);
+    }
+
+    private void drawGameOver(Graphics g) {
         if (tux.lives() <= 0 || gameOver) {
             g.setColor(Color.WHITE);
             g.setFont(new Font("Dialog", Font.PLAIN, 50));
             g.drawString("Game Over", screenW / 2 - 150, screenH / 2);
             g.setFont(new Font("Dialog", Font.PLAIN, 25));
             g.drawString("Press ESC to restart.", screenW / 2 - 140, screenH / 2 + 150);
-            return;
         }
-
-        if (!playing) {
-            return;
-        }
-        g.setFont(new Font("Dialog", Font.PLAIN, 20));
-
-        rewardTimer++;
-        if (rewardTimer / 400 == 1) {
-            rewardTimer = 0;
-            if (Math.random() > 0.5) {
-                boost.add(new Ammo());
-            } else {
-                if (tux.lives() < 10) {
-                    boost.add(new Memory());
-                }
-            }
-        }
-
-        removals();
-
-        paints(g);
-
-        comparisons();
-
-        // cooldown bar
-        g.setColor(new Color(130, 130, 130));
-        g.fillRect(50 - 1, screenH - 100 - 1, tux.getCooldown()[1] * (200 / tux.getCooldown()[1]) + 2, 10 + 2);
-        g.setColor(Color.BLUE);
-        g.fillRect(50, screenH - 100,
-                (tux.getCooldown()[1] - tux.getCooldown()[0]) * (200 / tux.getCooldown()[1]), 10);
-
-        // kill bar
-        g.setColor(Color.GREEN);
-        g.drawString(tux.getKills() + "", 1610, 990);
-
-        g.setColor(Color.RED);
-        for (int i = 0; i < tux.lives(); i++) {
-            g.drawOval(1700 + 20 * i, 980, 10, 10);
-        }
-        musicOnButton.setBounds(screenW - 100, 22, 40, 54);
-        musicOffButton.setBounds(screenW - 100, 22, 40, 54);
-        pauseButton.setBounds(screenW - 180, 30, 73, 40);
-        levelLabel.setBounds(18, 22, 370, 33);
     }
 
     private void removals() {
 
-        // removes expired explosions
+        // removes expired messages
         for (int i = 0; i < messages.size(); i++) {
             if (messages.get(i).time() <= 0) {
                 messages.remove(i);
@@ -198,59 +232,8 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         }
     }
 
-    private void paints(Graphics g) {
 
-        for (int i = 0; i < messages.size(); i++) {
-            g.setColor(messages.get(i).color());
-            g.drawString(messages.get(i).message(), 18, 110 + 20 * i);
-            messages.get(i).incTime();
-        }
-
-        // paint explosions
-        for (Explosion e : explosions) {
-            e.paint(g);
-        }
-
-        // paint boost
-        for (FlyingBoost f : boost) {
-            f.paint(g);
-        }
-
-        // paint viruses
-        for (Virus[] a1 : viruses) {
-            for (Virus a : a1) {
-                if (a.y() > screenH + 10) {
-                    // explosionSound.play();
-                    // explosionSound.play();
-                    gameOver = true;
-                }
-                if (a.shoot()) {
-                    virusBlasts.add(new Blast(a.x() + 40, a.y() + 55, "spark", 1)); // alien center is +40,+55
-                }
-                a.paint(g);
-            }
-        }
-
-        // paint tux tuxBlasts
-        for (Blast b : tuxBlasts) {
-            b.paint(g);
-        }
-
-        // paint alien tuxBlasts
-        for (Blast b : virusBlasts) {
-            b.paint(g);
-        }
-
-        if (tux.checkShot()) {
-            tuxBlasts.add(new Blast(tux.x() + 11, tux.y() + 60, "bit-0", 0));
-            tuxBlasts.add(new Blast(tux.x() + 115, tux.y() + 60, "bit-1", 0));
-            tux.incShotsFired();
-        }
-
-        tux.paint(g);
-    }
-
-    private void comparisons() {
+    private void checkCollisions() {
         // compare every alien with every tux blast
         for (int r = 0; r < viruses.length; r++) {
             for (int c = 0; c < viruses[r].length; c++) {
@@ -302,6 +285,52 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                 i--;
             }
         }
+    }
+
+    private void updateCoolDownBar(Graphics g) {
+        // cooldown bar
+        g.setColor(new Color(130, 130, 130));
+        g.fillRect(50 - 1, screenH - 100 - 1, tux.getCooldown()[1] * (200 / tux.getCooldown()[1]) + 2, 10 + 2);
+        g.setColor(Color.BLUE);
+        g.fillRect(50, screenH - 100,
+                (tux.getCooldown()[1] - tux.getCooldown()[0]) * (200 / tux.getCooldown()[1]), 10);
+    }
+
+    private void updateLivesAndKills(Graphics g) {
+        // update kill
+        g.setFont(new Font("Dialog", Font.PLAIN, 20));
+        g.setColor(Color.GREEN);
+        g.drawString(tux.getKills() + "", 120, 115);
+        System.out.println(tux.getKills());
+
+        // update Lives
+        g.setColor(Color.RED);
+        for (int i = 0; i < tux.lives(); i++) {
+            g.drawOval(120 + 20 * i, 70, 10, 10);
+        }
+    }
+
+    private void updateRewardTimer() {
+        rewardTimer++;
+        if (rewardTimer / 400 == 1) {
+            rewardTimer = 0;
+            if (Math.random() > 0.5) {
+                boost.add(new Ammo());
+            } else {
+                if (tux.lives() < 10) {
+                    boost.add(new Memory());
+                }
+            }
+        }
+    }
+
+    private void drawButtonsAndsLabels() {
+        levelLabel.setBounds(18, 25, 370, 33);
+        livesLabel.setBounds(18, 60, 100, 28);
+        killLabel.setBounds(18, 95, 100, 28);
+        musicOnButton.setBounds(screenW - 100, 22, 40, 54);
+        musicOffButton.setBounds(screenW - 100, 22, 40, 54);
+        pauseButton.setBounds(screenW - 180, 30, 73, 40);
     }
 
 

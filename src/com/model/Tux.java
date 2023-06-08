@@ -102,4 +102,9 @@ public class Tux extends GameObject {
         return vx;
     }
 
+    public void reset() {
+        lives = 3;
+    }
+
+
 }

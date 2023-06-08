@@ -1,4 +1,5 @@
 package model;
+
 public class Virus extends GameObject {
     protected int direction;
     private int version;
@@ -6,6 +7,8 @@ public class Virus extends GameObject {
     protected int vx;
     private int shotChance = 400;
     private static int destroyedCount = 0;
+    private int shotsRequired; // New instance variable
+    private boolean alive;
 
     public Virus() {
         this(100, 100, "");
@@ -17,28 +20,30 @@ public class Virus extends GameObject {
         direction = 1;
         version = 0;
         vx = 5;
+        shotsRequired = determineShotsRequired(type);
+        alive = true;
     }
 
     public void move() {
-        // change direction and go down when reaches edge of range
+        // Change direction and go down when reaches edge of range
         if (Math.abs(x - oX) > range) {
             direction *= -1;
             y += 20;
         }
-        // go left/right
+        // Go left/right
         x += vx * direction;
 
-        // toggle through versions of alien type
+        // Toggle through versions of alien type
         version++;
         if (version > 3) {
             version = 0;
         }
-        // update picture
+        // Update picture
         changePicture("alien-" + type + ".png");
     }
 
     public void respawn() {
-        // max = 750, min = 250
+        // Max = 750, min = 250
         y = -1 * ((int) (Math.random() * 501) + 250);
         vx++;
         shotChance -= 50;
@@ -51,14 +56,27 @@ public class Virus extends GameObject {
         return (int) (Math.random() * (shotChance) + 1) > shotChance - 1;
     }
 
-    // Add a method to increment the destroyed count
-    public static void incrementDestroyedCount() {
-        destroyedCount++;
+    private int determineShotsRequired(String type) {
+        return switch (type) {
+            case "red", "orange" -> 3;
+            case "yellow", "green" -> 2;
+            default -> 1; // Default shots required
+        };
     }
 
-    // Add a method to get the destroyed count
-    public static int getDestroyedCount() {
-        return destroyedCount;
+    public int getShotsRequired() {
+        return shotsRequired;
     }
 
+    public void hit() {
+        shotsRequired -= 1;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
 }

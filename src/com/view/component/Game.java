@@ -148,10 +148,10 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (tux.getKills() >= 20) {
+        if (tux.getKills() == 20) {
             generate(3);
             return;
-        } else if (tux.getKills() >= 15) {
+        } else if (tux.getKills() == 15) {
             generate(2);
             return;
         }

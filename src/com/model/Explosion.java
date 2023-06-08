@@ -4,7 +4,7 @@ public class Explosion extends GameObject {
 	private int time = 35;
 
 	public Explosion(int x, int y) {
-		super(x, y, "spark.png", 0.75);
+		super(x, y, "explosion.gif", 0.75);
 	}
 
 	public Explosion(GameObject obj) {

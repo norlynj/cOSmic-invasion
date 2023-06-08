@@ -5,7 +5,7 @@ public class Blast extends GameObject {
     private int bombSpeed;
     private int ammoSpeed;
     public Blast(int x, int y, String fileName, int type) {
-        super(x - 10, y - 30, fileName + ".png", 1.2);
+        super(x - 10, y - 30, fileName + ".png", 1);
         this.type = type;
 
         ammoSpeed = 15;

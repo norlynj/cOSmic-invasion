@@ -80,11 +80,11 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         viruses = new Virus[5][3];
 
         if (level == 2) {
-            viruses = new Virus[5][4];
+            viruses = new Virus[10][2];
             levelLabel.setText(levels[1]);
             colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green", "yellow", "yellow", "yellow", "yellow", "yellow"};
         } else if (level == 3) {
-            viruses = new Virus[6][5];
+            viruses = new Virus[10][3];
             levelLabel.setText(levels[2]);
             colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green", "yellow", "yellow", "yellow", "yellow", "yellow", "orange", "orange", "orange", "orange", "orange", "red", "red", "red", "red", "red"};
         }
@@ -165,7 +165,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         drawButtonsAndsLabels();
 
         if (tux.getKills() == 30 && currentLevel == 3){
-
+            successImage.setVisible(true);
         } else if (tux.getKills() == 20 && currentLevel == 2) {
             generate(3);
             return;

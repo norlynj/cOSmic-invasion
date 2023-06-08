@@ -15,7 +15,7 @@ public class Virus extends GameObject {
     }
 
     public Virus(int x, int y, String type) {
-        super(x, y, "alien-" + type + ".png", 1.5);
+        super(x, y, "alien-" + type + ".png", 1.2);
         this.type = type;
         direction = 1;
         version = 0;

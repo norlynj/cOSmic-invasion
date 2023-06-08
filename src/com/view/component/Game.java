@@ -21,7 +21,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     private ArrayList<Message> messages;
     private JLabel levelLabel, livesLabel, killLabel;
     private ImageIcon cutSceneBG;
-    private JLabel cutSceneImage, gameOverImage;
+    private JLabel cutSceneImage, gameOverImage, successImage;
     boolean isCutsceneShowing = true;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
     Image memoryImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
@@ -46,6 +46,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     public void generate(int level) {
         currentLevel = level;
         gameOverImage.setVisible(false);
+        successImage.setVisible(false);
 
 
         tux = new Tux(screenW / 2, 557);
@@ -117,6 +118,10 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         gameOverImage = new JLabel();
         gameOverImage.setBounds(0, 0, 1100, 800);
         gameOverImage.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/gameover.gif"))));
+
+        successImage = new JLabel();
+        successImage.setBounds(0, 0, 1100, 800);
+        successImage.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/success.png"))));
     }
 
     private void initializeButtons() {
@@ -151,6 +156,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         this.add(killLabel);
         this.add(cutSceneImage);
         this.add(gameOverImage);
+        this.add(successImage);
     }
 
     @Override
@@ -158,7 +164,9 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         super.paintComponent(g);
         drawButtonsAndsLabels();
 
-        if (tux.getKills() == 20 && currentLevel == 2) {
+        if (tux.getKills() == 30 && currentLevel == 3){
+
+        } else if (tux.getKills() == 20 && currentLevel == 2) {
             generate(3);
             return;
         } else if (tux.getKills() == 15 && currentLevel == 1) {

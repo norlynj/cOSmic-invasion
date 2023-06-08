@@ -3,7 +3,7 @@ package model;
 public class Blast extends GameObject {
     protected int type;
     public Blast(int x, int y, String fileName, int type) {
-        super(x - 10, y - 30, fileName + ".png", 2);
+        super(x - 10, y - 30, fileName + ".png", 1.2);
         this.type = type;
     }
 

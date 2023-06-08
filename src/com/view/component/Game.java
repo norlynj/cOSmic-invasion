@@ -115,7 +115,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
             drawSprites(g);
             removals();
             checkCollisions();
-            updateCoolDownBar(g);
+            updateBlastSpeedBar(g);
             updateLivesAndKills(g);
             updateRewardTimer();
             drawButtonsAndsLabels();
@@ -287,8 +287,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         }
     }
 
-    private void updateCoolDownBar(Graphics g) {
-        // cooldown bar
+    private void updateBlastSpeedBar(Graphics g) {
         g.setColor(new Color(130, 130, 130));
         g.fillRect(50 - 1, screenH - 100 - 1, tux.getCooldown()[1] * (200 / tux.getCooldown()[1]) + 2, 10 + 2);
         g.setColor(Color.BLUE);

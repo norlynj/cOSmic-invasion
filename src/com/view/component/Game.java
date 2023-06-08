@@ -21,7 +21,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     private ArrayList<Message> messages;
     private JLabel levelLabel, livesLabel, killLabel;
     private ImageIcon cutSceneBG;
-    private JLabel cutSceneImage;
+    private JLabel cutSceneImage, gameOverImage;
     boolean isCutsceneShowing = true;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
     Image memoryImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
@@ -45,6 +45,8 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
     public void generate(int level) {
         currentLevel = level;
+        gameOverImage.setVisible(false);
+
 
         tux = new Tux(screenW / 2, 557);
         tuxBlasts = new ArrayList<Blast>();
@@ -111,6 +113,10 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         cutSceneImage = new JLabel();
         cutSceneImage.setBounds(0, 0, 1100, 800);
         cutSceneImage.setIcon(cutSceneBG);
+
+        gameOverImage = new JLabel();
+        gameOverImage.setBounds(0, 0, 1100, 800);
+        gameOverImage.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/gameover.gif"))));
     }
 
     private void initializeButtons() {
@@ -144,6 +150,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         this.add(livesLabel);
         this.add(killLabel);
         this.add(cutSceneImage);
+        this.add(gameOverImage);
     }
 
     @Override
@@ -170,7 +177,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
             updateBlastSpeedBar(g);
             updateRewardTimer();
         } else {
-            drawGameOver(g);
+            gameOverImage.setVisible(true);
         }
 
         Toolkit.getDefaultToolkit().sync();
@@ -229,16 +236,6 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         }
 
         tux.paint(g);
-    }
-
-    private void drawGameOver(Graphics g) {
-        if (tux.lives() <= 0 || gameOver) {
-            g.setColor(Color.WHITE);
-            g.setFont(new Font("Dialog", Font.PLAIN, 50));
-            g.drawString("Game Over", screenW / 2 - 150, screenH / 2);
-            g.setFont(new Font("Dialog", Font.PLAIN, 25));
-            g.drawString("Press ESC to restart.", screenW / 2 - 140, screenH / 2 + 150);
-        }
     }
 
     private void removals() {

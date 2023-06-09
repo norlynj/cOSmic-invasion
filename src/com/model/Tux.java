@@ -50,6 +50,7 @@ public class Tux extends GameObject {
     public void hit() {
         hits++;
         lives--;
+        reloadTime[1] = 80;
     }
 
     public boolean checkShot() {

@@ -337,6 +337,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                 virusBlasts.remove(i);
                 tux.hit();
                 messages.add(new Message("Tux got hit", Color.RED));
+                messages.add(new Message("Reload increased to " + tux.getReloadTime()[1], Color.RED));
                 i--;
             }
         }

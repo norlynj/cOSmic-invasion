@@ -42,7 +42,7 @@ public class MenuPanel extends Panel{
 
         setListeners();
 
-        ImageIcon background = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/menu.png")));
+        ImageIcon background = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/menu.gif")));
 
         JLabel bgImage = new JLabel();
 

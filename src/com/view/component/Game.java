@@ -45,6 +45,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
     public void startGame(int level) {
         currentLevel = level;
+        setImage("bg/lvl" + currentLevel + "-bg.png");
         gameOverImage.setVisible(false);
         successImage.setVisible(false);
 
@@ -116,7 +117,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
         successImage = new JLabel();
         successImage.setBounds(0, 0, 1100, 800);
-        successImage.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/success.png"))));
+        successImage.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/success.gif"))));
     }
 
     private void initializeButtons() {

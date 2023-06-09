@@ -8,8 +8,7 @@ import java.awt.*;
 
 public class HowPanel extends Panel{
 
-    private ImageButton musicOnButton, musicOffButton, homeButton, entitiesButton, controlsButton,
-            levelsButton;
+    private ImageButton musicOnButton, musicOffButton, homeButton, entitiesButton, controlsButton, levelsButton;
     public HowPanel() {
 
         super("bg/how-1.png");
@@ -20,8 +19,6 @@ public class HowPanel extends Panel{
         entitiesButton = new ImageButton("buttons/entities.png");
         controlsButton = new ImageButton("buttons/controls.png");
         levelsButton = new ImageButton("buttons/levels.png");
-
-
 
         musicOffButton.setVisible(false);
 
@@ -42,9 +39,10 @@ public class HowPanel extends Panel{
         musicOnButton.setBounds(939, 22, 40, 54);
         musicOffButton.setBounds(939, 22, 40, 54);
         homeButton.setBounds(993, 30, 40, 42);
-        entitiesButton.setBounds(322, 126, 133, 41);
-        controlsButton.setBounds(457, 126, 150, 41);
-        levelsButton.setBounds(645, 126, 121, 41);
+        entitiesButton.setBounds(330, 126, 133, 41);
+        controlsButton.setBounds(486, 126, 150, 41);
+        levelsButton.setBounds(655, 126, 121, 41);
+
     }
 
     private void setListeners() {

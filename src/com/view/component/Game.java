@@ -33,7 +33,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
     private ImageButton musicOnButton, musicOffButton, pauseButton;
     public Game() {
-        super("bg/game-panel.png");
+        super("bg/lvl1-bg.png");
         t.start();
         initializeLabels();
         startGame(1);

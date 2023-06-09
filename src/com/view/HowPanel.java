@@ -4,6 +4,8 @@ import view.component.Frame;
 import view.component.ImageButton;
 import view.component.Panel;
 
+import java.awt.*;
+
 public class HowPanel extends Panel{
 
     private ImageButton musicOnButton, musicOffButton, homeButton, entitiesButton, controlsButton,
@@ -19,12 +21,7 @@ public class HowPanel extends Panel{
         controlsButton = new ImageButton("buttons/controls.png");
         levelsButton = new ImageButton("buttons/levels.png");
 
-        musicOnButton.setBounds(939, 22, 40, 54);
-        musicOffButton.setBounds(939, 22, 40, 54);
-        homeButton.setBounds(993, 30, 40, 42);
-        entitiesButton.setBounds(322, 126, 133, 41);
-        controlsButton.setBounds(457, 126, 150, 41);
-        levelsButton.setBounds(645, 126, 121, 41);
+
 
         musicOffButton.setVisible(false);
 
@@ -36,6 +33,18 @@ public class HowPanel extends Panel{
         this.add(entitiesButton);
         this.add(controlsButton);
         this.add(levelsButton);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        
+        musicOnButton.setBounds(939, 22, 40, 54);
+        musicOffButton.setBounds(939, 22, 40, 54);
+        homeButton.setBounds(993, 30, 40, 42);
+        entitiesButton.setBounds(322, 126, 133, 41);
+        controlsButton.setBounds(457, 126, 150, 41);
+        levelsButton.setBounds(645, 126, 121, 41);
     }
 
     private void setListeners() {

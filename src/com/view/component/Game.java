@@ -36,20 +36,20 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         super("bg/game-panel.png");
         t.start();
         initializeLabels();
-        generate(1);
+        startGame(1);
         initializeButtons();
         setListeners();
         addComponentsToFrame();
         setDoubleBuffered(true);
     }
 
-    public void generate(int level) {
+    public void startGame(int level) {
         currentLevel = level;
         gameOverImage.setVisible(false);
         successImage.setVisible(false);
 
 
-        tux = new Tux(screenW / 2, 557);
+        tux = new Tux(screenW / 2, 557, currentLevel);
         tuxBlasts = new ArrayList<Blast>();
         virusBlasts = new ArrayList<Blast>();
         boost = new ArrayList<FlyingBoost>();
@@ -74,7 +74,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         timer.setRepeats(false);
         timer.start();
 
-
+        // determine viruses on each level
         String[] colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green"};
         levelLabel.setText(levels[0]);
         viruses = new Virus[5][3];
@@ -95,12 +95,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         for (int r = 0; r < viruses.length; r++) {
             for (int c = 0; c < viruses[r].length; c++) {
                 String color = colorList.remove(0);
-                viruses[r][c] = new Virus(100 * r + 280, 100 * c - 100, color);
-                if (level == 2) {
-                    viruses[r][c].setSpeed(3);
-                } else if (level == 3) {
-                    viruses[r][c].setSpeed(5);
-                }
+                viruses[r][c] = new Virus(100 * r + 280, 100 * c - 100, color, currentLevel);
             }
         }
     }
@@ -167,10 +162,10 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         if (tux.getKills() == 30 && currentLevel == 3){
             successImage.setVisible(true);
         } else if (tux.getKills() == 20 && currentLevel == 2) {
-            generate(3);
+            startGame(3);
             return;
         } else if (tux.getKills() == 15 && currentLevel == 1) {
-            generate(2);
+            startGame(2);
             return;
         }
         paintLivesandKills(g);
@@ -320,7 +315,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                 if (b.hit(boost.get(x))) {
                     if (boost.get(x).isType("bullet")) {
                         tux.decreaseReloadTime();
-                        messages.add(new Message("Reload decreased to " + tux.getCooldown()[1], Color.GREEN));
+                        messages.add(new Message("Reload decreased to " + tux.getReloadTime()[1], Color.GREEN));
                     } else if (boost.get(x).isType("memory")) {
                         tux.addLife(1);
                         messages.add(new Message("Memory increased", Color.GREEN));
@@ -349,10 +344,10 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
     private void updateBlastSpeedBar(Graphics g) {
         g.setColor(new Color(130, 130, 130));
-        g.fillRect(50 - 1, screenH - 100 - 1, tux.getCooldown()[1] * (200 / tux.getCooldown()[1]) + 2, 10 + 2);
+        g.fillRect(50 - 1, screenH - 100 - 1, tux.getReloadTime()[1] * (200 / tux.getReloadTime()[1]) + 2, 10 + 2);
         g.setColor(Color.BLUE);
         g.fillRect(50, screenH - 100,
-                (tux.getCooldown()[1] - tux.getCooldown()[0]) * (200 / tux.getCooldown()[1]), 10);
+                (tux.getReloadTime()[1] - tux.getReloadTime()[0]) * (200 / tux.getReloadTime()[1]), 10);
     }
 
     private void paintLivesandKills(Graphics g) {
@@ -364,20 +359,33 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         // update Lives
         Graphics2D g2d = (Graphics2D) g;
         g.setColor(Color.RED);
-        for (int i = 0; i < tux.lives(); i++) {
-            g2d.drawImage(memoryImage, 120 + 30 * i, 60, this);
-
+        for (int i = 0; i < tux.lives(); i++) { // for firewall shield token
+            if (currentLevel == 1) {
+                g2d.drawImage(memoryImage, 120 + 30 * i, 60, this);
+            } else if ((currentLevel == 2 || currentLevel == 3) && (i+1) % 2 == 0) {
+                g2d.drawImage(memoryImage, 120 + 30 * i/2, 60, this);
+            }
         }
     }
 
     private void updateRewardTimer() {
         rewardTimer++;
-        if (rewardTimer / 400 == 1) {
+
+        int showAmmoEveryKill = 1;
+        if (currentLevel == 1) {
+            showAmmoEveryKill = 3;
+        } else if (currentLevel == 2) {
+            showAmmoEveryKill = 4;
+        } else if (currentLevel == 3) {
+            showAmmoEveryKill = 4;
+        }
+
+        if (rewardTimer / 300 == 1) {
             rewardTimer = 0;
-            if (Math.random() > 0.5) {
+            if (tux.getKills() % showAmmoEveryKill == 0) { // show ammo boost every 4 kills
                 boost.add(new Ammo());
             } else {
-                if (tux.lives() < 3) {
+                if (tux.lives() < 3) { // show life boost when life is less than 3
                     boost.add(new Memory());
                 }
             }
@@ -412,7 +420,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                 tux.setShooting(true);
                 break;
             case 27: // ESC
-                generate(1);
+                startGame(1);
                 break;
             default:
 //			 System.out.println("Unrecognized, key code: " + arg0.getKeyCode());

@@ -4,22 +4,22 @@ public class Tux extends GameObject {
     protected int vx;
     protected int hits;
     protected boolean shooting;
-    protected int[] reloadTime = { 0, 50 };
+    protected int[] reloadTime = { 0, 80 };
     protected int kills;
     protected int lives;
-    protected int shotsFired;
 
-    public Tux(int x, int y) {
+    public Tux(int x, int y, int level) {
         super(x, y, "Tux.png", 1);
         vx = 0;
         hits = 0;
         shooting = false;
-
-        range += 50;
-
         kills = 0;
-        lives = 3;
-        shotsFired = 0;
+
+        if (level == 1) {
+            lives = 3;
+        } else if (level == 2 || level == 3) { // Token “Firewall Shield”
+            lives = 6;
+        }
     }
 
     public void move() {
@@ -70,7 +70,7 @@ public class Tux extends GameObject {
         this.shooting = shooting;
     }
 
-    public int[] getCooldown() {
+    public int[] getReloadTime() {
         return reloadTime;
     }
 
@@ -93,10 +93,5 @@ public class Tux extends GameObject {
     public int vx() {
         return vx;
     }
-
-    public void reset() {
-        lives = 3;
-    }
-
 
 }

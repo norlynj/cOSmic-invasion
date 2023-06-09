@@ -2,7 +2,6 @@ package model;
 
 public class Virus extends GameObject {
     protected int direction;
-    private int version;
     private String type;
     protected int speed;
     private int shotChance = 400;
@@ -10,16 +9,17 @@ public class Virus extends GameObject {
     private int shotsRequired; // New instance variable
     private boolean alive;
 
-    public Virus() {
-        this(100, 100, "");
-    }
-
-    public Virus(int x, int y, String type) {
+    public Virus(int x, int y, String type, int level) {
         super(x, y, "alien-" + type + ".png", 1.2);
         this.type = type;
         direction = 1;
-        version = 0;
-        speed = 2;
+        if (level == 1) {
+            speed = 2;
+        } else if (level == 2) {
+            speed = 4;
+        } else if (level == 3) {
+            speed = 5;
+        }
         shotsRequired = determineShotsRequired(type);
         alive = true;
     }
@@ -33,11 +33,6 @@ public class Virus extends GameObject {
         // Go left/right
         x += speed * direction;
 
-        // Toggle through versions of alien type
-        version++;
-        if (version > 3) {
-            version = 0;
-        }
         // Update picture
         changePicture("alien-" + type + ".png");
     }
@@ -77,10 +72,5 @@ public class Virus extends GameObject {
     public boolean isAlive() {
         return alive;
     }
-
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
-
     
 }

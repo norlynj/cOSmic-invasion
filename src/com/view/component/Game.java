@@ -342,6 +342,10 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         }
     }
 
+    private void showQuestion() {
+
+    }
+
     private void updateBlastSpeedBar(Graphics g) {
         g.setColor(new Color(130, 130, 130));
         g.fillRect(50 - 1, screenH - 100 - 1, tux.getReloadTime()[1] * (200 / tux.getReloadTime()[1]) + 2, 10 + 2);
@@ -371,18 +375,9 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     private void updateRewardTimer() {
         rewardTimer++;
 
-        int showAmmoEveryKill = 1;
-        if (currentLevel == 1) {
-            showAmmoEveryKill = 3;
-        } else if (currentLevel == 2) {
-            showAmmoEveryKill = 4;
-        } else if (currentLevel == 3) {
-            showAmmoEveryKill = 4;
-        }
-
         if (rewardTimer / 300 == 1) {
             rewardTimer = 0;
-            if (tux.getKills() % showAmmoEveryKill == 0) { // show ammo boost every 4 kills
+            if (Math.random() > 0.5) { // show blast boost randomly
                 boost.add(new Ammo());
             } else {
                 if (tux.lives() < 3) { // show life boost when life is less than 3

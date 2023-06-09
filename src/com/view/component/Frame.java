@@ -11,6 +11,7 @@ public class  Frame extends JFrame {
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(name);
+//        setUndecorated(true);
         setResizable(false);
         getContentPane().setPreferredSize(new Dimension(1100, 800));
         pack();

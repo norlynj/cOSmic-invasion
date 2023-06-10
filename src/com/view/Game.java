@@ -5,8 +5,8 @@ import model.FlyingBoost;
 import view.component.Frame;
 import view.component.ImageButton;
 import view.component.Label;
-import view.component.ScrollBar;
 import view.component.Panel;
+import view.component.CustomScrollBar;
 
 import javax.swing.*;
 import java.awt.*;
@@ -48,7 +48,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
         initializeLabels();
         initializeQuestionsPanel();
-//        questionWrapper.setVisible(false);
+        questionPane.setVisible(false);
         startGame(1);
         initializeButtons();
         setListeners();
@@ -117,16 +117,15 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     }
 
     private void initializeQuestionsPanel() {
-        questionPanel = new JPanel();
-        questionPanel.setOpaque(false);
+        questionPanel = new Panel("bg/questions-bg.png");
         questionPanel.setLayout(new BoxLayout(questionPanel, BoxLayout.Y_AXIS));
+        questionPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
         JLabel questionLabel = new Label(questionSheet.question, true);
         questionLabel.setForeground(Color.WHITE);
         questionLabel.setSize(new Dimension(207, 28));
 
         JPanel choicesPanel = new JPanel();
-        choicesPanel.setOpaque(false);
         choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
 
         JPanel choiceAPanel = createChoicePanel("A", questionSheet.choiceA);
@@ -139,15 +138,21 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         choicesPanel.add(choiceBPanel);
         choicesPanel.add(choiceCPanel);
         choicesPanel.add(choiceDPanel);
+        choicesPanel.setOpaque(false);
 
         questionPanel.add(questionLabel);
         questionPanel.add(choicesPanel);
+        questionPanel.setAlignmentX(SwingConstants.CENTER);
 
-        questionWrapper = new Panel("bg/questions-bg.png");
-        questionWrapper.setLayout(new BorderLayout());
-        questionWrapper.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // Apply margins here
-        questionWrapper.add(questionPanel, BorderLayout.CENTER);
-        questionWrapper.setBounds(198, 140, 700, 531);
+
+        questionPane = new JScrollPane(questionPanel);
+        CustomScrollBar sbH = new CustomScrollBar();
+        sbH.setOrientation(JScrollBar.HORIZONTAL);
+        questionPane.setHorizontalScrollBar(sbH);
+        questionPane.setBorder(BorderFactory.createEmptyBorder());
+        questionPane.getViewport().setOpaque(false);
+        questionPane.setOpaque(false);
+        questionPane.setBounds(198, 140, 700, 400);
     }
 
     private JPanel createChoicePanel(String choice, String choiceText) {
@@ -220,7 +225,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         this.add(cutSceneImage);
         this.add(gameOverImage);
         this.add(successImage);
-        this.add(questionWrapper);
+        this.add(questionPane);
 
     }
 
@@ -230,7 +235,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         drawButtonsAndsLabels();
 
         if (boostHit) {
-            questionWrapper.setVisible(true);
+            questionPane.setVisible(true);
             return;
         } else {
         }

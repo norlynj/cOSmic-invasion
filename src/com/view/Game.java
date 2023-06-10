@@ -110,16 +110,67 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private void initializeQuestionsPanel() {
         questionPanel = new JPanel();
         questionPanel.setBackground(new Color(44, 7, 112));
-        questionPanel.setAlignmentX(SwingConstants.CENTER);
+        questionPanel.setLayout(new BoxLayout(questionPanel, BoxLayout.Y_AXIS));
 
+        JLabel questionLabel = new Label("Question");
+        questionLabel.setForeground(Color.WHITE);
+        questionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        questionPane = new JScrollPane(questionPanel);
-        ScrollBar sbV = new ScrollBar();
-        questionPane.setVerticalScrollBar(sbV);
+        JPanel choicesPanel = new JPanel();
+        choicesPanel.setBackground(new Color(44, 7, 112));
+        choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
+
+        JPanel choiceAPanel = createChoicePanel("A", "Choice A");
+        JPanel choiceBPanel = createChoicePanel("B", "Choice B");
+        JPanel choiceCPanel = createChoicePanel("C", "Choice C");
+        JPanel choiceDPanel = createChoicePanel("D", "Choice D");
+
+        choicesPanel.add(Box.createVerticalStrut(10));
+        choicesPanel.add(choiceAPanel);
+        choicesPanel.add(choiceBPanel);
+        choicesPanel.add(choiceCPanel);
+        choicesPanel.add(choiceDPanel);
+
+        questionPanel.add(questionLabel);
+        questionPanel.add(choicesPanel);
+
+        JPanel questionWrapperPanel = new JPanel(new BorderLayout());
+        questionWrapperPanel.setBackground(new Color(44, 7, 112));
+        questionWrapperPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // Apply margins here
+        questionWrapperPanel.add(questionPanel, BorderLayout.CENTER);
+
+        questionPane = new JScrollPane(questionWrapperPanel);
+        Dimension dimension = new Dimension(736, 531);
+        ScrollBar sbH = new ScrollBar();
+        sbH.setOrientation(JScrollBar.HORIZONTAL);
+
+        questionPane.setHorizontalScrollBar(sbH);
         questionPane.setBorder(BorderFactory.createEmptyBorder());
-        questionPane.setPreferredSize(new Dimension(736, 531));
-
+        questionPane.setMinimumSize(dimension);
+        questionPane.setMaximumSize(dimension);
+        questionPane.setPreferredSize(dimension);
+        questionPane.setAlignmentX(Component.CENTER_ALIGNMENT);
+        questionPane.setAlignmentY(Component.CENTER_ALIGNMENT);
     }
+
+    private JPanel createChoicePanel(String choice, String choiceText) {
+        JPanel choicePanel = new JPanel();
+        choicePanel.setBackground(new Color(44, 7, 112));
+        choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.X_AXIS));
+        choicePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel choiceLabel = new Label(choiceText);
+        choiceLabel.setForeground(Color.WHITE);
+
+        ImageButton choiceButton = new ImageButton("buttons/" + choice + ".png");
+
+        choicePanel.add(choiceButton);
+        choicePanel.add(Box.createHorizontalStrut(30));  // Add horizontal spacing between the button and label
+        choicePanel.add(choiceLabel);
+
+        return choicePanel;
+    }
+
 
     private void initializeLabels() {
         levelLabel = new view.component.Label(levels[0]);
@@ -179,6 +230,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        initializeQuestionsPanel();
         drawButtonsAndsLabels();
 
         if (tux.getKills() == 30 && currentLevel == 3){

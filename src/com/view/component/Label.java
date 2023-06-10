@@ -17,7 +17,14 @@ public class Label extends JLabel {
     }
 
     public Label(String text, int fontSize, boolean multiLine, int alignment) {
-        setFont(new Font("Arial", Font.BOLD, fontSize));
+        GraphicsEnvironment ge = null;
+        try{
+            ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/font/retropix.ttf")));
+
+        } catch(FontFormatException e){} catch (IOException e){}
+
+        setFont(new Font("RetroPix Regular", Font.PLAIN, fontSize));
         setForeground(new Color(255, 255, 255));
         this.multiLine = multiLine;
 

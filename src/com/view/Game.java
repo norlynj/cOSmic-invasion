@@ -24,12 +24,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private ArrayList<FlyingBoost> boost;
     private ArrayList<Explosion> explosions;
     private ArrayList<Message> messages;
-    private JLabel levelLabel, livesLabel, killLabel;
+    private JLabel levelLabel, livesLabel, killLabel, cutSceneImage, gameOverImage, successImage, correct, wrong, questionLabel, choiceALabel, choiceBLabel, choiceCLabel, choiceDLabel;
     private ImageIcon cutSceneBG;
-    private JLabel cutSceneImage, gameOverImage, successImage, correct, wrong;
-    private JLabel questionLabel, choiceALabel, choiceBLabel, choiceCLabel, choiceDLabel;
-    private ImageButton choiceAButton, choiceBButton, choiceCButton, choiceDButton;
-    boolean isCutsceneShowing = true;
+    private ImageButton musicOnButton, musicOffButton, pauseButton, choiceAButton, choiceBButton, choiceCButton, choiceDButton;
     private JPanel questionPanel, questionWrapper, choicesPanel;
     private JScrollPane questionPane;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
@@ -38,9 +35,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     Timer t = new Timer(16, this);
     private int rewardTimer, currentLevel;
-    boolean playing, gameOver, boostHit = false;
+    boolean playing, gameOver, boostHit = false, isCutsceneShowing = true;
 
-    private ImageButton musicOnButton, musicOffButton, pauseButton;
     public Game() {
         super("bg/lvl1-bg.png");
 

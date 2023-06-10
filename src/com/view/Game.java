@@ -28,7 +28,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private ImageIcon cutSceneBG;
     private JLabel cutSceneImage, gameOverImage, successImage;
     boolean isCutsceneShowing = true;
-    private JPanel questionPanel, questionWrapperPanel;
+    private JPanel questionPanel, questionWrapper;
+    private JScrollPane questionPane;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
     private QuestionSheet questionSheet;
     Image memoryImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
@@ -47,7 +48,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
         initializeLabels();
         initializeQuestionsPanel();
-//        questionWrapperPanel.setVisible(false);
+//        questionWrapper.setVisible(false);
         startGame(1);
         initializeButtons();
         setListeners();
@@ -140,26 +141,25 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         questionPanel.add(questionLabel);
         questionPanel.add(choicesPanel);
 
-        questionWrapperPanel = new Panel("bg/questions-bg.png");
-        questionWrapperPanel.setLayout(new BorderLayout());
-        questionWrapperPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // Apply margins here
-        questionWrapperPanel.add(questionPanel, BorderLayout.CENTER);
-
-        questionWrapperPanel.setBounds(198, 140, 700, 531);
+        questionWrapper = new Panel("bg/questions-bg.png");
+        questionWrapper.setLayout(new BorderLayout());
+        questionWrapper.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // Apply margins here
+        questionWrapper.add(questionPanel, BorderLayout.CENTER);
+        questionWrapper.setBounds(198, 140, 700, 531);
     }
 
     private JPanel createChoicePanel(String choice, String choiceText) {
         JPanel choicePanel = new JPanel();
         choicePanel.setOpaque(false);
         choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.X_AXIS));
-        choicePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        choicePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         choicePanel.setSize(new Dimension( 700, 500));
 
-        JLabel choiceLabel = new Label(choiceText, true);
+        JLabel choiceLabel = new Label(choiceText);
         ImageButton choiceButton = new ImageButton("buttons/" + choice + ".png");
 
         choicePanel.add(choiceButton);
-        choicePanel.add(Box.createHorizontalStrut(30));  // Add horizontal spacing between the button and label
+        choicePanel.add(Box.createHorizontalStrut(20));  // Add horizontal spacing between the button and label
         choicePanel.add(choiceLabel);
 
         return choicePanel;
@@ -218,7 +218,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         this.add(cutSceneImage);
         this.add(gameOverImage);
         this.add(successImage);
-        this.add(questionWrapperPanel);
+        this.add(questionWrapper);
 
     }
 
@@ -228,7 +228,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         drawButtonsAndsLabels();
 
         if (boostHit) {
-            questionWrapperPanel.setVisible(true);
+            questionWrapper.setVisible(true);
             return;
         } else {
         }

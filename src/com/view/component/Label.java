@@ -24,24 +24,17 @@ public class Label extends JLabel {
 
         } catch(FontFormatException e){} catch (IOException e){}
 
-        setFont(new Font("RetroPix Regular", Font.PLAIN, 25));
+        setFont(new Font("RetroPix Regular", Font.PLAIN, 20));
         setForeground(new Color(255, 255, 255));
         this.multiLine = multiLine;
 
-        //sets the horizontal alignment of the label
-        setHorizontalAlignment(SwingConstants.CENTER);
-        setVerticalAlignment(SwingConstants.CENTER);
         setText(text);
     }
 
     @Override
     public void setText(String text) {
         if (multiLine) {
-            if (center) {
-                text = "<html><center>" + text + "</center></html>"; //align in the center
-            } else {
-                text = "<html>" + text + "</html>";
-            }
+            text = "<html>" + text + "</html>";
         }
         super.setText(text);
     }

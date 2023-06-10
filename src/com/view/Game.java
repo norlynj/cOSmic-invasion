@@ -26,8 +26,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private ArrayList<Message> messages;
     private JLabel levelLabel, livesLabel, killLabel;
     private ImageIcon cutSceneBG;
-    private JLabel cutSceneImage, gameOverImage, successImage;
+    private JLabel cutSceneImage, gameOverImage, successImage, correct, wrong;
     private JLabel questionLabel, choiceALabel, choiceBLabel, choiceCLabel, choiceDLabel;
+    private ImageButton choiceAButton, choiceBButton, choiceCButton, choiceDButton;
     boolean isCutsceneShowing = true;
     private JPanel questionPanel, questionWrapper, choicesPanel;
     private JScrollPane questionPane;
@@ -62,6 +63,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         setImage("bg/lvl" + currentLevel + "-bg.png");
         gameOverImage.setVisible(false);
         successImage.setVisible(false);
+        correct.setVisible(false);
+        wrong.setVisible(false);
 
 
         tux = new Tux(screenW / 2, 557, currentLevel);
@@ -134,10 +137,19 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         choiceCLabel = new Label();
         choiceDLabel = new Label();
 
-        JPanel choiceAPanel = createChoicePanel("A", questionSheet.choiceA, choiceALabel);
-        JPanel choiceBPanel = createChoicePanel("B", questionSheet.choiceB, choiceBLabel);
-        JPanel choiceCPanel = createChoicePanel("C", questionSheet.choiceC, choiceCLabel);
-        JPanel choiceDPanel = createChoicePanel("D", questionSheet.choiceD, choiceDLabel);
+        choiceAButton = new ImageButton("buttons/A.png");
+        choiceBButton = new ImageButton("buttons/B.png");
+        choiceCButton = new ImageButton("buttons/C.png");
+        choiceDButton = new ImageButton("buttons/D.png");
+        choiceAButton.setName("A");
+        choiceBButton.setName("B");
+        choiceCButton.setName("C");
+        choiceDButton.setName("D");
+
+        JPanel choiceAPanel = createChoicePanel("A", questionSheet.choiceA, choiceAButton, choiceALabel);
+        JPanel choiceBPanel = createChoicePanel("B", questionSheet.choiceB, choiceBButton, choiceBLabel);
+        JPanel choiceCPanel = createChoicePanel("C", questionSheet.choiceC, choiceCButton, choiceCLabel);
+        JPanel choiceDPanel = createChoicePanel("D", questionSheet.choiceD, choiceDButton, choiceDLabel);
 
         choicesPanel.add(Box.createVerticalStrut(10));
         choicesPanel.add(choiceAPanel);
@@ -150,7 +162,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         questionPanel.add(choicesPanel);
         questionPanel.setAlignmentX(SwingConstants.CENTER);
 
-
         questionPane = new JScrollPane(questionPanel);
         CustomScrollBar sbH = new CustomScrollBar();
         sbH.setOrientation(JScrollBar.HORIZONTAL);
@@ -161,17 +172,12 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         questionPane.setBounds(198, 140, 700, 400);
     }
 
-    private JPanel createChoicePanel(String choice, String choiceText, JLabel choiceLabel) {
+    private JPanel createChoicePanel(String choice, String choiceText, ImageButton choiceButton, JLabel choiceLabel) {
         JPanel choicePanel = new JPanel();
         choicePanel.setOpaque(false);
         choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.X_AXIS));
         choicePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         choicePanel.setSize(new Dimension(700, 500));
-
-        ImageButton choiceButton = new ImageButton("buttons/" + choice + ".png");
-        choiceButton.addActionListener(e -> {
-            boostHit = false;
-        });
 
         choicePanel.add(choiceButton);
         choicePanel.add(Box.createHorizontalStrut(20));  // Add horizontal spacing between the button and label
@@ -180,6 +186,53 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         choicePanel.add(choiceLabel);
 
         return choicePanel;
+    }
+
+    private void checkAnswers(int boostNumber) {
+
+        ActionListener buttonActionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JButton clickedButton = (JButton) e.getSource();
+
+                if (questionSheet.correctChoice.equals(clickedButton.getName())) {
+                    System.out.println("correct");
+                    Timer timer = new Timer(2000, new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            correct.setVisible(false);
+                        }
+                    });
+
+                    if (!boost.isEmpty() && boost.get(boostNumber).isType("bullet")) {
+                        tux.decreaseReloadTime();
+                        messages.add(new Message("Reload decreased to " + tux.getReloadTime()[1], Color.GREEN));
+                    } else if (!boost.isEmpty() && boost.get(boostNumber).isType("memory")) {
+                        tux.addLife(1);
+                        messages.add(new Message("Memory increased", Color.GREEN));
+                    }
+
+                    timer.setRepeats(false);
+                    timer.start();
+                } else {
+                    System.out.println("wrong");
+                    Timer timer = new Timer(2000, new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            wrong.setVisible(false);
+                        }
+                    });
+                    timer.setRepeats(false);
+                    timer.start();
+                }
+                boostHit = false;
+            }
+        };
+
+        choiceAButton.addActionListener(buttonActionListener);
+        choiceBButton.addActionListener(buttonActionListener);
+        choiceCButton.addActionListener(buttonActionListener);
+        choiceDButton.addActionListener(buttonActionListener);
     }
 
     private void updateQuestion() {
@@ -208,6 +261,12 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         successImage = new JLabel();
         successImage.setBounds(0, 0, 1100, 800);
         successImage.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/success.gif"))));
+
+        correct = new JLabel();
+        correct.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/correct.png"))));
+
+        wrong = new JLabel();
+        wrong.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/wrong.png"))));
     }
 
     private void initializeButtons() {
@@ -242,6 +301,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         this.add(killLabel);
         this.add(cutSceneImage);
         this.add(gameOverImage);
+        this.add(correct);
+        this.add(wrong);
         this.add(successImage);
         this.add(questionPane);
 
@@ -410,19 +471,13 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             Blast b = tuxBlasts.get(i);
             for (int x = 0; x < boost.size(); x++) {
                 if (b.hit(boost.get(x))) {
-                    if (boost.get(x).isType("bullet")) {
-                        tux.decreaseReloadTime();
-                        messages.add(new Message("Reload decreased to " + tux.getReloadTime()[1], Color.GREEN));
-                    } else if (boost.get(x).isType("memory")) {
-                        tux.addLife(1);
-                        messages.add(new Message("Memory increased", Color.GREEN));
-                    }
+                    updateQuestion();
+                    checkAnswers(x);
                     tuxBlasts.remove(i);
                     boost.remove(x);
                     x--;
                     i--;
                     boostHit = true;
-                    updateQuestion();
                 }
             }
         }

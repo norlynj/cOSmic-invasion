@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class ScrollBar extends JScrollBar {
 
-    private Color theme = new Color(115, 200, 177);
+    private Color theme = Color.gray;
 
     public ScrollBar() {
         setUI(new ModernScrollBarUI());

@@ -1,7 +1,10 @@
-package view.component;
+package view;
 
 import model.*;
 import model.FlyingBoost;
+import view.component.ImageButton;
+import view.component.Label;
+import view.component.ScrollBar;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 
-public class Game extends Panel implements ActionListener, KeyListener, MouseListener {
+public class Game extends view.component.Panel implements ActionListener, KeyListener, MouseListener {
     public int screenW = this.getWidth(), screenH = this.getHeight();
     private Virus[][] viruses;
     private Tux tux;
@@ -23,6 +26,8 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     private ImageIcon cutSceneBG;
     private JLabel cutSceneImage, gameOverImage, successImage;
     boolean isCutsceneShowing = true;
+    private JPanel questionPanel;
+    private JScrollPane questionPane;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
     Image memoryImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
 
@@ -36,6 +41,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         super("bg/lvl1-bg.png");
         t.start();
         initializeLabels();
+        initializeQuestionsPanel();
         startGame(1);
         initializeButtons();
         setListeners();
@@ -101,9 +107,23 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         }
     }
 
+    private void initializeQuestionsPanel() {
+        questionPanel = new JPanel();
+        questionPanel.setBackground(new Color(44, 7, 112));
+        questionPanel.setAlignmentX(SwingConstants.CENTER);
+
+
+        questionPane = new JScrollPane(questionPanel);
+        ScrollBar sbV = new ScrollBar();
+        questionPane.setVerticalScrollBar(sbV);
+        questionPane.setBorder(BorderFactory.createEmptyBorder());
+        questionPane.setPreferredSize(new Dimension(736, 531));
+
+    }
+
     private void initializeLabels() {
-        levelLabel = new Label(levels[0]);
-        livesLabel = new Label("Lives: ");
+        levelLabel = new view.component.Label(levels[0]);
+        livesLabel = new view.component.Label("Lives: ");
         killLabel = new Label("Kills: ");
         cutSceneBG = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/lvl1-cutscene.png")));
 
@@ -150,6 +170,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         this.add(levelLabel);
         this.add(livesLabel);
         this.add(killLabel);
+        this.add(questionPane);
         this.add(cutSceneImage);
         this.add(gameOverImage);
         this.add(successImage);

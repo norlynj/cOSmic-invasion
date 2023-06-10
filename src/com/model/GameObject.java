@@ -4,9 +4,7 @@ import javax.swing.*;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
-import java.net.URL;
 import java.util.Objects;
 
 public class GameObject {
@@ -40,14 +38,10 @@ public class GameObject {
         height = img.getHeight(null) * scaleSize;
 
         move();
-        // these are the 2 lines of code needed draw an image on the screen
+        // draw image
         Graphics2D g2 = (Graphics2D) g;
         g2.drawImage(img, tx, null);
         update();
-
-//		g.setColor(Color.red);
-//		g.drawString(id + "", x, y);
-//		g.drawRect(x, y, (int) width, (int) height);
     }
 
     public void move() {

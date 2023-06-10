@@ -28,7 +28,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private ImageIcon cutSceneBG;
     private JLabel cutSceneImage, gameOverImage, successImage;
     boolean isCutsceneShowing = true;
-    private JPanel questionPanel, questionWrapper;
+    private JPanel questionPanel, questionWrapper, choicesPanel;
     private JScrollPane questionPane;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
     private QuestionSheet questionSheet;
@@ -125,7 +125,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         questionLabel.setForeground(Color.WHITE);
         questionLabel.setSize(new Dimension(207, 28));
 
-        JPanel choicesPanel = new JPanel();
+        choicesPanel = new JPanel();
         choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
 
         JPanel choiceAPanel = createChoicePanel("A", questionSheet.choiceA);
@@ -164,6 +164,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
         JLabel choiceLabel = new Label(choiceText);
         ImageButton choiceButton = new ImageButton("buttons/" + choice + ".png");
+        choiceButton.addActionListener( e -> {
+            boostHit = false;
+        });
 
         choicePanel.add(choiceButton);
         choicePanel.add(Box.createHorizontalStrut(20));  // Add horizontal spacing between the button and label
@@ -238,8 +241,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             questionPane.setVisible(true);
             return;
         } else {
+            questionPane.setVisible(false);
         }
-
         if (tux.getKills() == 30 && currentLevel == 3){
             successImage.setVisible(true);
         } else if (tux.getKills() == 20 && currentLevel == 2) {
@@ -376,7 +379,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                         //explosionSound.play();
                         tuxBlasts.remove(i);
                         v.hit();
-                        System.out.println(v.getShotsRequired());
                         if (v.getShotsRequired() == 0 && v.isAlive()) {
                             v.setAlive(false);
                             v.moveOutOfScreen();

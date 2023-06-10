@@ -197,12 +197,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
                 if (questionSheet.correctChoice.equals(clickedButton.getName())) {
                     System.out.println("correct");
-                    Timer timer = new Timer(2000, new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            correct.setVisible(false);
-                        }
-                    });
 
                     if (!boost.isEmpty() && boost.get(boostNumber).isType("bullet")) {
                         tux.decreaseReloadTime();
@@ -211,19 +205,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                         tux.addLife(1);
                         messages.add(new Message("Memory increased", Color.GREEN));
                     }
-
-                    timer.setRepeats(false);
-                    timer.start();
                 } else {
                     System.out.println("wrong");
-                    Timer timer = new Timer(2000, new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            wrong.setVisible(false);
-                        }
-                    });
-                    timer.setRepeats(false);
-                    timer.start();
+                    messages.add(new Message("Wrong Answer. You didn't get the boost", Color.RED));
                 }
                 boostHit = false;
             }

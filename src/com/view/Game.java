@@ -74,7 +74,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         playing = true;
         gameOver = false;
 
-        cutSceneBG = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/lvl" + level + "-cutscene.png")));
+        if (currentLevel == 2 || currentLevel == 3) {
+            cutSceneBG = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/lvl" + level + "-cutscene.gif")));
+        }
         cutSceneImage.setIcon(cutSceneBG);
         cutSceneImage.setVisible(true);
         isCutsceneShowing = true;

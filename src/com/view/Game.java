@@ -81,7 +81,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         cutSceneImage.setIcon(cutSceneBG);
         cutSceneImage.setVisible(true);
         isCutsceneShowing = true;
-        Timer timer = new Timer(3000, new ActionListener() {
+        Timer timer = new Timer(4500, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cutSceneImage.setVisible(false);
@@ -253,41 +253,40 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         drawButtonsAndsLabels();
 
         if (boostHit) {
+            g.drawImage(memoryImage, 0, 0, null);
             questionPane.setVisible(true);
-            return;
         } else {
             questionPane.setVisible(false);
-        }
-        if (tux.getKills() == 30 && currentLevel == 3){
-            successImage.setVisible(true);
-        } else if (tux.getKills() == 20 && currentLevel == 2) {
-            startGame(3);
-            return;
-        } else if (tux.getKills() == 15 && currentLevel == 1) {
-            startGame(2);
-            return;
-        }
-        paintLivesandKills(g);
+            if (tux.getKills() == 30 && currentLevel == 3){
+                successImage.setVisible(true);
+            } else if (tux.getKills() == 20 && currentLevel == 2) {
+                startGame(3);
+                return;
+            } else if (tux.getKills() == 15 && currentLevel == 1) {
+                startGame(2);
+                return;
+            }
 
-        if (!playing || isCutsceneShowing) {
-            return;
+            if (!playing || isCutsceneShowing) {
+                return;
+            }
+            if (tux.lives() > 0 && !gameOver) {
+                drawSprites(g);
+                removals();
+                checkCollisions();
+                updateBlastSpeedBar(g);
+                updateRewardTimer();
+            } else {
+                gameOverImage.setVisible(true);
+            }
+            paintLivesandKills(g);
+            Toolkit.getDefaultToolkit().sync();
         }
-        if (tux.lives() > 0 && !gameOver) {
-            drawSprites(g);
-            removals();
-            checkCollisions();
-            updateBlastSpeedBar(g);
-            updateRewardTimer();
-        } else {
-            gameOverImage.setVisible(true);
-        }
-
-        Toolkit.getDefaultToolkit().sync();
-
     }
 
-    private void drawSprites(Graphics g) {
 
+
+    private void drawSprites(Graphics g) {
         // paint messages
         g.setFont(new Font("Dialog", Font.PLAIN, 20));
         for (int i = 0; i < messages.size(); i++) {

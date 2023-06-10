@@ -27,6 +27,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private JLabel levelLabel, livesLabel, killLabel;
     private ImageIcon cutSceneBG;
     private JLabel cutSceneImage, gameOverImage, successImage;
+    private JLabel questionLabel, choiceALabel, choiceBLabel, choiceCLabel, choiceDLabel;
     boolean isCutsceneShowing = true;
     private JPanel questionPanel, questionWrapper, choicesPanel;
     private JScrollPane questionPane;
@@ -121,17 +122,22 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         questionPanel.setLayout(new BoxLayout(questionPanel, BoxLayout.Y_AXIS));
         questionPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        JLabel questionLabel = new Label(questionSheet.question, true);
+        questionLabel = new Label(questionSheet.question, true);
         questionLabel.setForeground(Color.WHITE);
         questionLabel.setSize(new Dimension(207, 28));
 
         choicesPanel = new JPanel();
         choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
 
-        JPanel choiceAPanel = createChoicePanel("A", questionSheet.choiceA);
-        JPanel choiceBPanel = createChoicePanel("B", questionSheet.choiceB);
-        JPanel choiceCPanel = createChoicePanel("C", questionSheet.choiceC);
-        JPanel choiceDPanel = createChoicePanel("D", questionSheet.choiceD);
+        choiceALabel = new Label();
+        choiceBLabel = new Label();
+        choiceCLabel = new Label();
+        choiceDLabel = new Label();
+
+        JPanel choiceAPanel = createChoicePanel("A", questionSheet.choiceA, choiceALabel);
+        JPanel choiceBPanel = createChoicePanel("B", questionSheet.choiceB, choiceBLabel);
+        JPanel choiceCPanel = createChoicePanel("C", questionSheet.choiceC, choiceCLabel);
+        JPanel choiceDPanel = createChoicePanel("D", questionSheet.choiceD, choiceDLabel);
 
         choicesPanel.add(Box.createVerticalStrut(10));
         choicesPanel.add(choiceAPanel);
@@ -155,26 +161,35 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         questionPane.setBounds(198, 140, 700, 400);
     }
 
-    private JPanel createChoicePanel(String choice, String choiceText) {
+    private JPanel createChoicePanel(String choice, String choiceText, JLabel choiceLabel) {
         JPanel choicePanel = new JPanel();
         choicePanel.setOpaque(false);
         choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.X_AXIS));
         choicePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        choicePanel.setSize(new Dimension( 700, 500));
+        choicePanel.setSize(new Dimension(700, 500));
 
-        JLabel choiceLabel = new Label(choiceText);
         ImageButton choiceButton = new ImageButton("buttons/" + choice + ".png");
-        choiceButton.addActionListener( e -> {
+        choiceButton.addActionListener(e -> {
             boostHit = false;
         });
 
         choicePanel.add(choiceButton);
         choicePanel.add(Box.createHorizontalStrut(20));  // Add horizontal spacing between the button and label
+
+        choiceLabel.setText(choiceText);
         choicePanel.add(choiceLabel);
 
         return choicePanel;
     }
 
+    private void updateQuestion() {
+        questionSheet.getRandomQuestion();
+        questionLabel.setText(questionSheet.question);
+        choiceALabel.setText(questionSheet.choiceA);
+        choiceBLabel.setText(questionSheet.choiceB);
+        choiceCLabel.setText(questionSheet.choiceC);
+        choiceDLabel.setText(questionSheet.choiceD);
+    }
 
     private void initializeLabels() {
         levelLabel = new view.component.Label(levels[0]);
@@ -408,7 +423,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                     x--;
                     i--;
                     boostHit = true;
-                    questionSheet.getRandomQuestion();
+                    updateQuestion();
                 }
             }
         }

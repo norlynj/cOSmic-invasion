@@ -13,6 +13,12 @@ import java.util.Random;
 
 public class QuestionSheet {
 
+    public String question;
+    public String choiceA;
+    public String choiceB;
+    public String choiceC;
+    public String choiceD;
+    public String correctChoice;
     private String filePath;
     private List<Integer> accessedIndices;
 
@@ -34,12 +40,12 @@ public class QuestionSheet {
             int randomRowIndex = getRandomIndex(startRow, endRow);
 
             Row row = sheet.getRow(randomRowIndex);
-            String question = getCellValue(row, 2); // Column C (index 2)
-            String choiceA = getCellValue(row, 3); // Column D (index 3)
-            String choiceB = getCellValue(row, 4); // Column E (index 4)
-            String choiceC = getCellValue(row, 5); // Column F (index 5)
-            String choiceD = getCellValue(row, 6); // Column G (index 6)
-            String correctChoice = getCellValue(row, 7); // Column H (index 7)
+            question = getCellValue(row, 2); // Column C (index 2)
+            choiceA = getCellValue(row, 3); // Column D (index 3)
+            choiceB = getCellValue(row, 4); // Column E (index 4)
+            choiceC = getCellValue(row, 5); // Column F (index 5)
+            choiceD = getCellValue(row, 6); // Column G (index 6)
+            correctChoice = getCellValue(row, 7); // Column H (index 7)
 
             // Store the values to attributes or use them as needed
             String questionAttribute = question;

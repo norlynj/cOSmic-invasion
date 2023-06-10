@@ -2,9 +2,11 @@ package view;
 
 import model.*;
 import model.FlyingBoost;
+import view.component.Frame;
 import view.component.ImageButton;
 import view.component.Label;
 import view.component.ScrollBar;
+import view.component.Panel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,22 +28,26 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private ImageIcon cutSceneBG;
     private JLabel cutSceneImage, gameOverImage, successImage;
     boolean isCutsceneShowing = true;
-    private JPanel questionPanel;
-    private JScrollPane questionPane;
+    private JPanel questionPanel, questionWrapperPanel;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
+    private QuestionSheet questionSheet;
     Image memoryImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
 
     Timer t = new Timer(16, this);
     private int rewardTimer, currentLevel;
-    boolean playing, gameOver;
-    boolean bossFight;
+    boolean playing, gameOver, boostHit = false;
 
     private ImageButton musicOnButton, musicOffButton, pauseButton;
     public Game() {
         super("bg/lvl1-bg.png");
+
         t.start();
+        questionSheet = new QuestionSheet();
+        questionSheet.getRandomQuestion();
+
         initializeLabels();
         initializeQuestionsPanel();
+//        questionWrapperPanel.setVisible(false);
         startGame(1);
         initializeButtons();
         setListeners();
@@ -109,21 +115,21 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     private void initializeQuestionsPanel() {
         questionPanel = new JPanel();
-        questionPanel.setBackground(new Color(44, 7, 112));
+        questionPanel.setOpaque(false);
         questionPanel.setLayout(new BoxLayout(questionPanel, BoxLayout.Y_AXIS));
 
-        JLabel questionLabel = new Label("Question");
+        JLabel questionLabel = new Label(questionSheet.question, true);
         questionLabel.setForeground(Color.WHITE);
-        questionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        questionLabel.setSize(new Dimension(207, 28));
 
         JPanel choicesPanel = new JPanel();
-        choicesPanel.setBackground(new Color(44, 7, 112));
+        choicesPanel.setOpaque(false);
         choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
 
-        JPanel choiceAPanel = createChoicePanel("A", "Choice A");
-        JPanel choiceBPanel = createChoicePanel("B", "Choice B");
-        JPanel choiceCPanel = createChoicePanel("C", "Choice C");
-        JPanel choiceDPanel = createChoicePanel("D", "Choice D");
+        JPanel choiceAPanel = createChoicePanel("A", questionSheet.choiceA);
+        JPanel choiceBPanel = createChoicePanel("B", questionSheet.choiceB);
+        JPanel choiceCPanel = createChoicePanel("C", questionSheet.choiceC);
+        JPanel choiceDPanel = createChoicePanel("D", questionSheet.choiceD);
 
         choicesPanel.add(Box.createVerticalStrut(10));
         choicesPanel.add(choiceAPanel);
@@ -134,34 +140,22 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         questionPanel.add(questionLabel);
         questionPanel.add(choicesPanel);
 
-        JPanel questionWrapperPanel = new JPanel(new BorderLayout());
-        questionWrapperPanel.setBackground(new Color(44, 7, 112));
+        questionWrapperPanel = new Panel("bg/questions-bg.png");
+        questionWrapperPanel.setLayout(new BorderLayout());
         questionWrapperPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // Apply margins here
         questionWrapperPanel.add(questionPanel, BorderLayout.CENTER);
 
-        questionPane = new JScrollPane(questionWrapperPanel);
-        Dimension dimension = new Dimension(736, 531);
-        ScrollBar sbH = new ScrollBar();
-        sbH.setOrientation(JScrollBar.HORIZONTAL);
-
-        questionPane.setHorizontalScrollBar(sbH);
-        questionPane.setBorder(BorderFactory.createEmptyBorder());
-        questionPane.setMinimumSize(dimension);
-        questionPane.setMaximumSize(dimension);
-        questionPane.setPreferredSize(dimension);
-        questionPane.setAlignmentX(Component.CENTER_ALIGNMENT);
-        questionPane.setAlignmentY(Component.CENTER_ALIGNMENT);
+        questionWrapperPanel.setBounds(198, 140, 700, 531);
     }
 
     private JPanel createChoicePanel(String choice, String choiceText) {
         JPanel choicePanel = new JPanel();
-        choicePanel.setBackground(new Color(44, 7, 112));
+        choicePanel.setOpaque(false);
         choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.X_AXIS));
-        choicePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        choicePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        choicePanel.setSize(new Dimension( 700, 500));
 
-        JLabel choiceLabel = new Label(choiceText);
-        choiceLabel.setForeground(Color.WHITE);
-
+        JLabel choiceLabel = new Label(choiceText, true);
         ImageButton choiceButton = new ImageButton("buttons/" + choice + ".png");
 
         choicePanel.add(choiceButton);
@@ -221,17 +215,23 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         this.add(levelLabel);
         this.add(livesLabel);
         this.add(killLabel);
-        this.add(questionPane);
         this.add(cutSceneImage);
         this.add(gameOverImage);
         this.add(successImage);
+        this.add(questionWrapperPanel);
+
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        initializeQuestionsPanel();
         drawButtonsAndsLabels();
+
+        if (boostHit) {
+            questionWrapperPanel.setVisible(true);
+            return;
+        } else {
+        }
 
         if (tux.getKills() == 30 && currentLevel == 3){
             successImage.setVisible(true);
@@ -398,6 +398,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                     boost.remove(x);
                     x--;
                     i--;
+                    boostHit = true;
+                    questionSheet.getRandomQuestion();
                 }
             }
         }
@@ -540,5 +542,12 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     public void mouseReleased(MouseEvent arg0) {
 
+    }
+
+    public static void main(String[] args) {
+        Game m = new Game();
+        view.component.Frame frame = new Frame("Menu Panel");
+        frame.add(m);
+        frame.setVisible(true);
     }
 }

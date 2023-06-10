@@ -13,10 +13,10 @@ public class Label extends JLabel {
     }
 
     public Label(String text) {
-        this(text, 25, false, SwingConstants.CENTER);
+        this(text, false);
     }
 
-    public Label(String text, int fontSize, boolean multiLine, int alignment) {
+    public Label(String text, boolean multiLine) {
         GraphicsEnvironment ge = null;
         try{
             ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -24,12 +24,12 @@ public class Label extends JLabel {
 
         } catch(FontFormatException e){} catch (IOException e){}
 
-        setFont(new Font("RetroPix Regular", Font.PLAIN, fontSize));
+        setFont(new Font("RetroPix Regular", Font.PLAIN, 25));
         setForeground(new Color(255, 255, 255));
         this.multiLine = multiLine;
 
         //sets the horizontal alignment of the label
-        setHorizontalAlignment(SwingConstants.LEFT);
+        setHorizontalAlignment(SwingConstants.CENTER);
         setVerticalAlignment(SwingConstants.CENTER);
         setText(text);
     }

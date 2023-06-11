@@ -26,7 +26,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private ArrayList<Message> messages;
     private JLabel levelLabel, livesLabel, killLabel, cutSceneImage, gameOverImage, successImage, correct, wrong, questionLabel, choiceALabel, choiceBLabel, choiceCLabel, choiceDLabel;
     private ImageIcon cutSceneBG;
-    private ImageButton homeButton, musicOnButton, musicOffButton, pauseButton, choiceAButton, choiceBButton, choiceCButton, choiceDButton;
+    private ImageButton homeButton, musicOnButton, musicOffButton, pauseButton, playButton, pauseHomeButton, pauseExitButton, choiceAButton, choiceBButton, choiceCButton, choiceDButton;
     private JPanel questionPanel, questionWrapper, choicesPanel;
     private JScrollPane questionPane;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: System Shutdown"};
@@ -35,7 +35,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     private Timer t = new Timer(16, this);
     private int rewardTimer, currentLevel;
-    private boolean playing, gameOver, boostHit = false, isCutsceneShowing = true;
+    private boolean playing, gameOver, boostHit = false, isCutsceneShowing = true, pauseClicked = false;
 
     public Game() {
         super("bg/lvl1-bg.png");
@@ -45,11 +45,12 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
         initializeLabels();
         initializeQuestionsPanel();
-        questionPane.setVisible(false);
         initializeButtons();
         setListeners();
         addComponentsToFrame();
         setDoubleBuffered(true);
+
+        questionPane.setVisible(false);
     }
 
     @Override
@@ -88,7 +89,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     private void handleRegularGame(Graphics g) {
         questionPane.setVisible(false);
-        if (!playing && isPlayerAlive()) {
+        if (!playing && isPlayerAlive() || pauseClicked) {
             drawSprites(g, true);
             return;
         }
@@ -336,6 +337,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     public void startGame(int level) {
         currentLevel = level;
+        pauseHomeButton.setVisible(false);
+        pauseExitButton.setVisible(false);
+        playButton.setVisible(false);
 
         // show level number
         if (currentLevel == 2 || currentLevel == 3) {
@@ -547,6 +551,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         musicOnButton = new ImageButton("buttons/music-on.png");
         musicOffButton = new ImageButton("buttons/music-off.png");
         pauseButton = new ImageButton("buttons/pause.png");
+        playButton = new ImageButton("buttons/home.png");
+        pauseHomeButton = new ImageButton("buttons/home-cutscene.png");
+        pauseExitButton = new ImageButton("buttons/exit-cutscene.png");
     }
 
     private void setListeners(){
@@ -554,7 +561,27 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         musicOnButton.hover("buttons/music-off-hover.png", "buttons/music-on.png");
         musicOffButton.hover("buttons/music-on-hover.png", "buttons/music-off.png");
         pauseButton.hover("buttons/pause-hover.png", "buttons/pause.png");
+        playButton.hover("buttons/home-hover.png", "buttons/home.png");
+        pauseHomeButton.hover("buttons/home-cutscene-hover.png", "buttons/home-cutscene.png");
+        pauseExitButton.hover("buttons/exit-cutscene-hover.png", "buttons/exit-cutscene.png");
 
+        pauseButton.addActionListener( e -> {
+            pauseClicked = true;
+            System.out.println("pause button clicked");
+            pauseHomeButton.setVisible(true);
+            pauseExitButton.setVisible(true);
+            pauseButton.setVisible(false);
+            playButton.setVisible(true);
+        });
+
+        playButton.addActionListener(e -> {
+            pauseClicked = false;
+            System.out.println("play button clicked");
+            pauseHomeButton.setVisible(false);
+            pauseExitButton.setVisible(false);
+            pauseButton.setVisible(true);
+            playButton.setVisible(false);
+        });
         musicOnButton.addActionListener(e -> {
             musicOnButton.setVisible(false);
             musicOffButton.setVisible(true);
@@ -572,6 +599,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         this.add(musicOnButton);
         this.add(musicOffButton);
         this.add(pauseButton);
+        this.add(playButton);
+        this.add(pauseHomeButton);
+        this.add(pauseExitButton);
         this.add(levelLabel);
         this.add(livesLabel);
         this.add(killLabel);
@@ -588,18 +618,23 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         levelLabel.setBounds(18, 25, 370, 33);
         livesLabel.setBounds(18, 60, 100, 28);
         killLabel.setBounds(18, 95, 100, 28);
+        homeButton.setBounds(screenW - 180, 22, 40, 54);
         musicOnButton.setBounds(screenW - 100, 22, 40, 54);
         musicOffButton.setBounds(screenW - 100, 22, 40, 54);
         pauseButton.setBounds(screenW - 180, 30, 73, 40);
-        homeButton.setBounds(screenW - 180, 22, 40, 54);
+        playButton.setBounds(screenW - 180, 30, 73, 40);
+        pauseHomeButton.setBounds(326, 300, 150, 65);
+        pauseExitButton.setBounds(587, 300, 150, 65);
+
 
         if (successImage.isVisible()) {
             homeButton.setVisible(true);
             pauseButton.setVisible(false);
+            playButton.setVisible(false);
         } else {
             homeButton.setVisible(false);
-            pauseButton.setVisible(true);
         }
+
     }
 
 

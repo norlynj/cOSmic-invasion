@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 
-public class Game extends view.component.Panel implements ActionListener, KeyListener, MouseListener {
+public class Game extends view.component.Panel implements ActionListener, KeyListener, MouseListener, MouseMotionListener {
     public int screenW = this.getWidth(), screenH = this.getHeight();
     private Frame frame;
     private Virus[][] viruses;
@@ -639,7 +639,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         this.add(wrong);
         this.add(successImage);
         this.add(questionPane);
-
+        this.addMouseListener(this);
+        this.addMouseMotionListener(this);
     }
 
     private void drawButtonsAndsLabels() {
@@ -716,8 +717,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     }
 
-    public void mouseClicked(MouseEvent arg0) {
-        System.out.println(arg0);
+    public void mouseClicked(MouseEvent e) {
+
     }
 
     public void mouseEntered(MouseEvent arg0) {
@@ -728,12 +729,18 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         playing = false;
     }
 
+    @Override
     public void mousePressed(MouseEvent arg0) {
-
+        if (tux != null) {
+            tux.setShooting(true);
+        }
     }
 
+    @Override
     public void mouseReleased(MouseEvent arg0) {
-
+        if (tux != null) {
+            tux.setShooting(false);
+        }
     }
 
     public static void main(String[] args) {
@@ -785,5 +792,17 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         catch (Exception err) {
             err.printStackTrace();
         }
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent mouseEvent) {
+        int mouseX = mouseEvent.getX();
+        tux.x(mouseX);
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent mouseEvent) {
+        int mouseX = mouseEvent.getX();
+        tux.x(mouseX);
     }
 }

@@ -177,7 +177,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                         // explosionSound.play();
                         gameOver = true;
                     }
-                    if (v.shoot() && !pause && !pauseClicked) {
+                    if (v.shoot() && !pause && !pauseClicked) { // prevent virus from creating a sblast while on pause
                         virusBlasts.add(new Blast(v.x() + 40, v.y() + 55, "spark", 1));
                     }
                     v.setPaused(pause);

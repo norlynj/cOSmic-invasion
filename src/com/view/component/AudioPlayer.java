@@ -3,6 +3,8 @@ package view.component;
 import javax.sound.sampled.*;
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AudioPlayer {
     private Clip clip;
@@ -20,8 +22,10 @@ public class AudioPlayer {
             clip.open(ais);
 
         } catch (UnsupportedAudioFileException | IOException ex) {
+            Logger.getLogger(AudioPlayer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (LineUnavailableException ex) {
-
+            Logger.getLogger(AudioPlayer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AudioPlayer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

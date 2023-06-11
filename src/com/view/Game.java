@@ -309,9 +309,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     private void updateBlastSpeedBar(Graphics g) {
         g.setColor(new Color(130, 130, 130));
-        g.fillRect(50 - 1, screenH - 100 - 1, tux.getReloadTime()[1] * (200 / tux.getReloadTime()[1]) + 2, 10 + 2);
+        g.fillRect(50 - 1, screenH - 150 - 1, tux.getReloadTime()[1] * (200 / tux.getReloadTime()[1]) + 2, 10 + 2);
         g.setColor(Color.cyan);
-        g.fillRect(50, screenH - 100,
+        g.fillRect(50, screenH - 150,
                 (tux.getReloadTime()[1] - tux.getReloadTime()[0]) * (200 / tux.getReloadTime()[1]), 10);
     }
 
@@ -325,10 +325,10 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         Graphics2D g2d = (Graphics2D) g;
         g.setColor(Color.RED);
         for (int i = 0; i < tux.lives(); i++) { // for firewall shield token
-            if (currentLevel == 1) {
-                g2d.drawImage(memoryImage, 120 + 30 * i, 60, this);
-            } else if ((currentLevel == 2 || currentLevel == 3) && (i+1) % 2 == 0) {
-                g2d.drawImage(memoryImage, 120 + 30 * i/2, 60, this);
+            if (currentLevel != 3) {
+                g2d.drawImage(memoryImage, 80 + 30 * i, 60, this);
+            } else if ((i+1) % 2 == 0) {
+                g2d.drawImage(memoryImage, 80 + 30 * i/2, 60, this);
             }
         }
     }
@@ -341,7 +341,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             if (Math.random() > 0.5) { // show blast boost randomly
                 boost.add(new Ammo());
             } else {
-                int lifeThreshold = currentLevel != 1 ? 6 : 3;
+                int lifeThreshold = currentLevel == 3 ? 6 : 3;
                 if (tux.lives() < lifeThreshold) { // show life boost when life is less than 3
                     boost.add(new Memory());
                 }
@@ -503,7 +503,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                         tux.decreaseReloadTime();
                         messages.add(new Message("Reload decreased to " + tux.getReloadTime()[1], Color.GREEN));
                     } else if (fBoost != null && fBoost.isType("memory")) {
-                        if (currentLevel != 1) {
+                        if (currentLevel == 3) {
                             tux.addLife(2);
                         } else {
                             tux.addLife(1);

@@ -17,7 +17,11 @@ public class Tux extends GameObject {
 
         if (level == 1) {
             lives = 3;
-        } else if (level == 2 || level == 3) { // Token “Firewall Shield”
+        } else if (level == 2) { // Token “Speed Boost”
+            lives = 3;
+            reloadTime[1] = 20;
+        } else if (level == 3) { // Token “Firewall Shield”
+            reloadTime[1] = 20;
             lives = 6;
         }
     }
@@ -50,7 +54,7 @@ public class Tux extends GameObject {
     public void hit() {
         hits++;
         lives--;
-        reloadTime[1] = 80;
+        reloadTime[1] = 60;
     }
 
     public boolean checkShot() {

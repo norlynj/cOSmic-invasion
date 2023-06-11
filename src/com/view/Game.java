@@ -42,7 +42,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
         t.start();
         questionSheet = new QuestionSheet();
-        questionSheet.getRandomQuestion();
 
         initializeLabels();
         initializeQuestionsPanel();
@@ -184,7 +183,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         return choicePanel;
     }
 
-    private void checkAnswers(int boostNumber) {
+    private void checkAnswers(int boostNumber, FlyingBoost fBoost) {
 
         ActionListener buttonActionListener = new ActionListener() {
             @Override
@@ -192,13 +191,17 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                 JButton clickedButton = (JButton) e.getSource();
 
                 if (questionSheet.correctChoice.equals(clickedButton.getName())) {
-                    System.out.println("correct");
+                    System.out.println(fBoost);
+                    if (fBoost != null && fBoost.isType("bullet")) {
 
-                    if (!boost.isEmpty() && boost.get(boostNumber).isType("bullet")) {
                         tux.decreaseReloadTime();
                         messages.add(new Message("Reload decreased to " + tux.getReloadTime()[1], Color.GREEN));
-                    } else if (!boost.isEmpty() && boost.get(boostNumber).isType("memory")) {
-                        tux.addLife(1);
+                    } else if (fBoost != null && fBoost.isType("memory")) {
+                        if (currentLevel != 1) {
+                            tux.addLife(2);
+                        } else {
+                            tux.addLife(1);
+                        }
                         messages.add(new Message("Memory increased", Color.GREEN));
                     }
                 } else {
@@ -206,6 +209,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                     messages.add(new Message("Wrong Answer. You didn't get the boost", Color.RED));
                 }
                 boostHit = false;
+                return;
             }
         };
 
@@ -324,7 +328,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             Toolkit.getDefaultToolkit().sync();
         }
     }
-
 
 
     private void drawSprites(Graphics g) {
@@ -451,13 +454,13 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             Blast b = tuxBlasts.get(i);
             for (int x = 0; x < boost.size(); x++) {
                 if (b.hit(boost.get(x))) {
+                    boostHit = true;
                     updateQuestion();
-                    checkAnswers(x);
+                    checkAnswers(x, boost.get(x));
                     tuxBlasts.remove(i);
                     boost.remove(x);
                     x--;
                     i--;
-                    boostHit = true;
                 }
             }
         }
@@ -477,9 +480,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         }
     }
 
-    private void showQuestion() {
-
-    }
 
     private void updateBlastSpeedBar(Graphics g) {
         g.setColor(new Color(130, 130, 130));
@@ -515,7 +515,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             if (Math.random() > 0.5) { // show blast boost randomly
                 boost.add(new Ammo());
             } else {
-                if (tux.lives() < 3) { // show life boost when life is less than 3
+                int lifeThreshold = currentLevel != 1 ? 6 : 3;
+                if (tux.lives() < lifeThreshold) { // show life boost when life is less than 3
                     boost.add(new Memory());
                 }
             }

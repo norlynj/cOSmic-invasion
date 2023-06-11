@@ -18,10 +18,7 @@ javac -cp .:lib/* -d . Main.java
 
 For Windows:
 ```
-javac -cp ".;lib/*" -d . com/model/*.java
-javac -cp ".;lib/*" -d . com/view/component/*.java
-javac -cp ".;lib/*" -d . com/view/*.java
-javac -cp ".;lib/*" -d . Main.java
+javac -cp ".;lib/*" -d . com/model/*.java com/view/component/*.java com/view/*.java Main.java
 ```
 
 c. lastly, run the program using the compiled Main class
@@ -35,5 +32,5 @@ java -cp .:lib/*:. Main
 
 For Windows:
 ```
-java -cp ".;lib/*;." Main
+java -cp ".;lib/*" Main
 ```

@@ -3,9 +3,7 @@ package model;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +21,26 @@ public class QuestionSheet {
     private List<Integer> accessedIndices;
 
     public QuestionSheet() {
-        URL resource = getClass().getResource("/questions/questions-list.xlsx");
-        filePath = new File(resource.getFile()).getAbsolutePath();
-        this.filePath = filePath;
-        this.accessedIndices = new ArrayList<>();
+        InputStream inputStream = getClass().getResourceAsStream("/resources/questions/questions-list.xlsx");
+        try {
+            File tempFile = File.createTempFile("questions-list", ".xlsx");
+            tempFile.deleteOnExit();
+
+            try (OutputStream outputStream = new FileOutputStream(tempFile)) {
+                byte[] buffer = new byte[8192];
+                int length;
+                while ((length = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, length);
+                }
+            }
+
+            filePath = tempFile.getAbsolutePath();
+            this.accessedIndices = new ArrayList<>();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
 
     public void getRandomQuestion() {
         try (FileInputStream fis = new FileInputStream(filePath)) {

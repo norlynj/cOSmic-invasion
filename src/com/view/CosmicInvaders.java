@@ -12,12 +12,12 @@ public class CosmicInvaders {
     private Game game;
     private Panel contentPane;
     private CardLayout cardLayout;
-    private AudioPlayer audio;
+    AudioPlayer mainGameMusic = new AudioPlayer("maingame_bg.wav");
+    AudioPlayer menuMusic = new AudioPlayer("bgmusic.wav");
 
     public CosmicInvaders(){
-        audio = new AudioPlayer("bgmusic.wav");
-        audio.play();
-        audio.loop();
+        menuMusic.play();
+        menuMusic.loop();
         frame = new Frame("CosmicInvaders");
 
         // create Panels
@@ -49,6 +49,8 @@ public class CosmicInvaders {
     public void listenToMenu() {
         menuPanel.getStartButton().addActionListener(e -> {
             cardLayout.show(contentPane, "game" );
+            menuMusic.stop();
+            mainGameMusic.play();
             game.startGame(1);
         });
         menuPanel.getInstructionsButton().addActionListener(e -> cardLayout.show(contentPane, "howPanel" ));
@@ -67,17 +69,27 @@ public class CosmicInvaders {
         game.getHomeButton().addActionListener(e -> cardLayout.show(contentPane, "menuPanel"));
         game.getMusicOnButton().addActionListener(e -> soundClick());
         game.getMusicOffButton().addActionListener(e -> soundClick());
-        game.getPauseHomeButton().addActionListener(e -> cardLayout.show(contentPane, "menuPanel"));
+        game.getPauseHomeButton().addActionListener(e -> {
+            cardLayout.show(contentPane, "menuPanel");
+            mainGameMusic.stop();
+            menuMusic.play();
+        });
         game.getPauseExitButton().addActionListener(e -> System.exit(0));
     }
 
     public void soundClick() {
         menuPanel.musicClick();
          howPanel.musicClick();
-        if (audio.isPlaying()) {
-            audio.stop();
+        if (menuMusic.isPlaying()) {
+            menuMusic.stop();
         } else {
-            audio.play();
+            menuMusic.play();
+        }
+
+        if (mainGameMusic.isPlaying()) {
+            mainGameMusic.stop();
+        } else {
+            mainGameMusic.play();
         }
     }
 

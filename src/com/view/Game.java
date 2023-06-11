@@ -35,7 +35,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     private Timer t = new Timer(16, this);
     private int rewardTimer, currentLevel;
-    private boolean playing, gameOver, boostHit = false, isCutsceneShowing = true, pauseClicked = false;
+    private boolean playing, gameOver, boostHit = false, isCutsceneShowing = true, pauseClicked;
 
     public Game() {
         super("bg/lvl1-bg.png");
@@ -337,8 +337,11 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     public void startGame(int level) {
         currentLevel = level;
+
+        pauseClicked = false;
         pauseHomeButton.setVisible(false);
         pauseExitButton.setVisible(false);
+        pauseButton.setVisible(true);
         playButton.setVisible(false);
 
         // show level number
@@ -725,5 +728,13 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     public ImageButton getMusicOffButton() {
         return musicOffButton;
+    }
+
+    public ImageButton getPauseHomeButton() {
+        return pauseHomeButton;
+    }
+
+    public ImageButton getPauseExitButton() {
+        return pauseExitButton;
     }
 }

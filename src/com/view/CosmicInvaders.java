@@ -67,6 +67,8 @@ public class CosmicInvaders {
         game.getHomeButton().addActionListener(e -> cardLayout.show(contentPane, "menuPanel"));
         game.getMusicOnButton().addActionListener(e -> soundClick());
         game.getMusicOffButton().addActionListener(e -> soundClick());
+        game.getPauseHomeButton().addActionListener(e -> cardLayout.show(contentPane, "menuPanel"));
+        game.getPauseExitButton().addActionListener(e -> System.exit(0));
     }
 
     public void soundClick() {

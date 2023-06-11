@@ -327,7 +327,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         for (int i = 0; i < tux.lives(); i++) { // for firewall shield token
             if (currentLevel != 3) {
                 g2d.drawImage(memoryImage, 80 + 30 * i, 60, this);
-            } else if ((i+1) % 2 == 0) {
+            } else if ((i) % 2 == 0) {
                 g2d.drawImage(memoryImage, 80 + 30 * i/2, 60, this);
             }
         }

@@ -89,6 +89,10 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     private void handleRegularGame(Graphics g) {
         questionPane.setVisible(false);
+        if (!playing) {
+            drawSprites(g, true);
+            return;
+        }
         if (shouldStartNextLevel()) {
             return;
         }
@@ -97,13 +101,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             updateGame(g);
         } else {
             gameOverImage.setVisible(true);
-            return;
         }
-
-        if (!playing) {
-            drawSprites(g, true);
-        }
-
     }
 
     private boolean shouldStartNextLevel() {
@@ -500,6 +498,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                 choiceBButton.removeActionListener(this);
                 choiceCButton.removeActionListener(this);
                 choiceDButton.removeActionListener(this);
+                playing = true;
             }
         };
 

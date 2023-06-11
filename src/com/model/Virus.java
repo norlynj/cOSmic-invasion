@@ -16,9 +16,9 @@ public class Virus extends GameObject {
         if (level == 1) {
             speed = 2;
         } else if (level == 2) {
-            speed = 4;
-        } else if (level == 3) {
             speed = 5;
+        } else if (level == 3) {
+            speed = 6;
         }
         shotsRequired = determineShotsRequired(type);
         alive = true;

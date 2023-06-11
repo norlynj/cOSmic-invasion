@@ -35,7 +35,7 @@ public class QuestionSheet {
             Sheet sheet = workbook.getSheetAt(0); // Assuming the sheet index is 0
 
             int startRow = 1; // Row 1
-            int endRow = 121; // Row 121
+            int endRow = 120; // Row 121
 
             int randomRowIndex = getRandomIndex(startRow, endRow);
 

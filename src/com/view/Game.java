@@ -2,11 +2,11 @@ package view;
 
 import model.*;
 import model.FlyingBoost;
+import view.component.*;
 import view.component.Frame;
-import view.component.ImageButton;
 import view.component.Label;
 import view.component.Panel;
-import view.component.CustomScrollBar;
+import view.component.AudioPlayer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +18,7 @@ import java.util.Objects;
 
 public class Game extends view.component.Panel implements ActionListener, KeyListener, MouseListener {
     public int screenW = this.getWidth(), screenH = this.getHeight();
+    private Frame frame;
     private Virus[][] viruses;
     private Tux tux;
     private ArrayList<Blast> tuxBlasts, virusBlasts;
@@ -37,8 +38,19 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private int rewardTimer, currentLevel;
     private boolean playing, gameOver, boostHit = false, isCutsceneShowing = true, pauseClicked;
 
-    public Game() {
+    // Sound
+    AudioPlayer mainGameMusic = new AudioPlayer("maingame_bg.wav");
+    AudioPlayer explosion = new AudioPlayer("explosion_bg.wav");
+    AudioPlayer powerUp = new AudioPlayer("powerups_bg.wav");
+    AudioPlayer levelUp = new AudioPlayer("levelup_bg.wav");
+    AudioPlayer correctMusic = new AudioPlayer("correct.wav");
+    AudioPlayer wrongMusic = new AudioPlayer("wrong.wav");
+    AudioPlayer gameoverBg = new AudioPlayer("gameover_bg.wav");
+    AudioPlayer success = new AudioPlayer("success_bg.wav");
+
+    public Game(Frame frame) {
         super("bg/lvl1-bg.png");
+        this.frame = frame;
 
         t.start();
         questionSheet = new QuestionSheet();
@@ -60,12 +72,14 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
         drawButtonsAndsLabels();
 
+
         if (isCutsceneShowing || gameOver) {
             handleSpecialCases(g);
             return;
         }
 
         paintLivesandKills(g);
+        updateBlastSpeedBar(g);
 
         if (boostHit) {
             handleBoostHit(g);
@@ -79,6 +93,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private void handleSpecialCases(Graphics g) {
         if (gameOver) {
             gameOverImage.setVisible(true);
+            gameoverBg.play();
             gameOverImage.paint(g);
         }
     }
@@ -103,12 +118,14 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             updateGame(g);
         } else {
             gameOverImage.setVisible(true);
+            gameoverBg.play();
         }
     }
 
     private boolean shouldStartNextLevel() {
         if (tux.getKills() == 30 && currentLevel == 3) {
             successImage.setVisible(true);
+            success.play();
             return true;
         }
 
@@ -133,7 +150,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         drawSprites(g, false);
         removals();
         checkCollisions();
-        updateBlastSpeedBar(g);
         updateRewardTimer();
     }
 
@@ -163,10 +179,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             for (Virus v : v1) {
                 if (v.isAlive()) {
                     if (v.y() > screenH + 10) {
-                        // explosionSound.play();
                         gameOver = true;
                     }
-                    if (v.shoot()) {
+                    if (v.shoot() && !pause && !pauseClicked) { // prevent virus from creating a sblast while on pause
                         virusBlasts.add(new Blast(v.x() + 40, v.y() + 55, "spark", 1));
                     }
                     v.setPaused(pause);
@@ -247,7 +262,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                     Blast b = tuxBlasts.get(i);
                     if (b.hit(v)) {
                         explosions.add(new Explosion(b));
-                        //explosionSound.play();
+                        explosion.play();
                         tuxBlasts.remove(i);
                         v.hit();
                         if (v.getShotsRequired() == 0 && v.isAlive()) {
@@ -268,8 +283,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             for (int x = 0; x < boost.size(); x++) {
                 if (b.hit(boost.get(x))) {
                     boostHit = true;
+                    powerUp.play();
                     updateQuestion();
-                    checkAnswers(x, boost.get(x));
+                    checkAnswers(boost.get(x));
                     tuxBlasts.remove(i);
                     boost.remove(x);
                     x--;
@@ -283,7 +299,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             Blast b = virusBlasts.get(i);
             if (b.hit(tux)) {
                 explosions.add(new Explosion(b));
-                //explosionSound.play();
+                shake();
+                explosion.play();
                 virusBlasts.remove(i);
                 tux.hit();
                 messages.add(new Message("Tux got hit", Color.RED));
@@ -296,9 +313,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     private void updateBlastSpeedBar(Graphics g) {
         g.setColor(new Color(130, 130, 130));
-        g.fillRect(50 - 1, screenH - 100 - 1, tux.getReloadTime()[1] * (200 / tux.getReloadTime()[1]) + 2, 10 + 2);
-        g.setColor(Color.BLUE);
-        g.fillRect(50, screenH - 100,
+        g.fillRect(50 - 1, screenH - 150 - 1, tux.getReloadTime()[1] * (200 / tux.getReloadTime()[1]) + 2, 10 + 2);
+        g.setColor(Color.cyan);
+        g.fillRect(50, screenH - 150,
                 (tux.getReloadTime()[1] - tux.getReloadTime()[0]) * (200 / tux.getReloadTime()[1]), 10);
     }
 
@@ -312,10 +329,10 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         Graphics2D g2d = (Graphics2D) g;
         g.setColor(Color.RED);
         for (int i = 0; i < tux.lives(); i++) { // for firewall shield token
-            if (currentLevel == 1) {
-                g2d.drawImage(memoryImage, 120 + 30 * i, 60, this);
-            } else if ((currentLevel == 2 || currentLevel == 3) && (i+1) % 2 == 0) {
-                g2d.drawImage(memoryImage, 120 + 30 * i/2, 60, this);
+            if (currentLevel != 3) {
+                g2d.drawImage(memoryImage, 80 + 30 * i, 60, this);
+            } else if ((i) % 2 == 0) {
+                g2d.drawImage(memoryImage, 80 + 30 * i/2, 60, this);
             }
         }
     }
@@ -328,7 +345,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             if (Math.random() > 0.5) { // show blast boost randomly
                 boost.add(new Ammo());
             } else {
-                int lifeThreshold = currentLevel != 1 ? 6 : 3;
+                int lifeThreshold = currentLevel == 3 ? 6 : 3;
                 if (tux.lives() < lifeThreshold) { // show life boost when life is less than 3
                     boost.add(new Memory());
                 }
@@ -344,19 +361,24 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         pauseExitButton.setVisible(false);
         pauseButton.setVisible(true);
         playButton.setVisible(false);
+        musicOnButton.setVisible(true);
+        musicOffButton.setVisible(false);
 
         // show level number
         if (currentLevel == 2 || currentLevel == 3) {
-            cutSceneBG = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/lvl" + level + "-cutscene.gif")));
+            cutSceneBG = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/lvl" + currentLevel + "-cutscene.gif")));
         }
         cutSceneImage.setIcon(cutSceneBG);
         cutSceneImage.setVisible(true);
         isCutsceneShowing = true;
-        Timer timer = new Timer(4500, new ActionListener() {
+        levelUp.play();
+        mainGameMusic.stop();
+        Timer timer = new Timer(4000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cutSceneImage.setVisible(false);
                 isCutsceneShowing = false;
+                mainGameMusic.play();
             }
         });
         timer.setRepeats(false);
@@ -388,7 +410,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         viruses = new Virus[5][3];
 
         if (level == 2) {
-            viruses = new Virus[10][2];
+            viruses = new Virus[5][4];
             levelLabel.setText(levels[1]);
             colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green", "yellow", "yellow", "yellow", "yellow", "yellow"};
         } else if (level == 3) {
@@ -476,7 +498,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         return choicePanel;
     }
 
-    private void checkAnswers(int boostNumber, FlyingBoost fBoost) {
+    private void checkAnswers(FlyingBoost fBoost) {
 
         ActionListener buttonActionListener = new ActionListener() {
             @Override
@@ -489,16 +511,18 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                         tux.decreaseReloadTime();
                         messages.add(new Message("Reload decreased to " + tux.getReloadTime()[1], Color.GREEN));
                     } else if (fBoost != null && fBoost.isType("memory")) {
-                        if (currentLevel != 1) {
+                        if (currentLevel == 3) {
                             tux.addLife(2);
                         } else {
                             tux.addLife(1);
                         }
                         messages.add(new Message("Memory increased", Color.GREEN));
                     }
+                    correctMusic.play();
                 } else {
                     System.out.println("wrong");
                     messages.add(new Message("Wrong Answer. You didn't get the boost", Color.RED));
+                    wrongMusic.play();
                 }
                 boostHit = false;
                 // Remove the action listener from the buttons
@@ -713,8 +737,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     }
 
     public static void main(String[] args) {
-        Game m = new Game();
         view.component.Frame frame = new Frame("Menu Panel");
+        Game m = new Game(frame);
         frame.add(m);
         frame.setVisible(true);
     }
@@ -737,5 +761,29 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     public ImageButton getPauseExitButton() {
         return pauseExitButton;
+    }
+
+    private void shake() {
+
+        int vibrationLength = 7;
+        int vibrationSpeed = 2;
+        try {
+            final int originalX = frame.getLocationOnScreen().x;
+            final int originalY = frame.getLocationOnScreen().y;
+            for (int i = 0; i < vibrationLength; i++) {
+                Thread.sleep(10);
+                frame.setLocation(originalX, originalY + vibrationSpeed);
+                Thread.sleep(10);
+                frame.setLocation(originalX, originalY - vibrationSpeed);
+                Thread.sleep(10);
+                frame.setLocation(originalX + vibrationSpeed, originalY);
+                Thread.sleep(10);
+                frame.setLocation(originalX, originalY);
+            }
+        }
+
+        catch (Exception err) {
+            err.printStackTrace();
+        }
     }
 }

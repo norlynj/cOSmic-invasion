@@ -12,18 +12,18 @@ public class CosmicInvaders {
     private Game game;
     private Panel contentPane;
     private CardLayout cardLayout;
-    private AudioPlayer audio;
+
+    AudioPlayer menuMusic = new AudioPlayer("bgmusic.wav");
 
     public CosmicInvaders(){
-        audio = new AudioPlayer("bgmusic.wav");
-        audio.play();
-        audio.loop();
+        menuMusic.play();
+        menuMusic.loop();
         frame = new Frame("CosmicInvaders");
 
         // create Panels
         menuPanel = new MenuPanel();
         howPanel = new HowPanel();
-        game = new Game();
+        game = new Game(frame);
 
         // setup the content pane and card layout
         contentPane = new Panel(true, "bg/menu.png");
@@ -49,36 +49,52 @@ public class CosmicInvaders {
     public void listenToMenu() {
         menuPanel.getStartButton().addActionListener(e -> {
             cardLayout.show(contentPane, "game" );
+            menuMusic.stop();
             game.startGame(1);
         });
         menuPanel.getInstructionsButton().addActionListener(e -> cardLayout.show(contentPane, "howPanel" ));
         menuPanel.getExitButton().addActionListener(e -> System.exit(0));
-        menuPanel.getMusicOnButton().addActionListener(e -> soundClick());
-        menuPanel.getMusicOffButton().addActionListener(e -> soundClick());
+        menuPanel.getMusicOnButton().addActionListener(e -> soundClick(false));
+        menuPanel.getMusicOffButton().addActionListener(e -> soundClick(false));
     }
 
     public void listenToHow() {
-         howPanel.getMusicOnButton().addActionListener(e -> soundClick());
-         howPanel.getMusicOffButton().addActionListener(e -> soundClick());
+         howPanel.getMusicOnButton().addActionListener(e -> soundClick(false));
+         howPanel.getMusicOffButton().addActionListener(e -> soundClick(false));
          howPanel.getHomeButton().addActionListener(e -> cardLayout.show(contentPane, "menuPanel"));
     }
 
     public void listenToMainGame() {
-        game.getHomeButton().addActionListener(e -> cardLayout.show(contentPane, "menuPanel"));
-        game.getMusicOnButton().addActionListener(e -> soundClick());
-        game.getMusicOffButton().addActionListener(e -> soundClick());
-        game.getPauseHomeButton().addActionListener(e -> cardLayout.show(contentPane, "menuPanel"));
+        game.getMusicOnButton().addActionListener(e -> soundClick(true));
+        game.getMusicOffButton().addActionListener(e -> soundClick(true));
+        game.getPauseHomeButton().addActionListener(e -> {
+            cardLayout.show(contentPane, "menuPanel");
+            game.mainGameMusic.stop();
+            menuMusic.play();
+        });
+        game.getHomeButton().addActionListener(e -> {
+            cardLayout.show(contentPane, "menuPanel");
+            game.mainGameMusic.stop();
+            menuMusic.play();
+        });
         game.getPauseExitButton().addActionListener(e -> System.exit(0));
     }
 
-    public void soundClick() {
-        menuPanel.musicClick();
-         howPanel.musicClick();
-        if (audio.isPlaying()) {
-            audio.stop();
+    public void soundClick(boolean fromMainGame) {
+        if (fromMainGame) {
+            if (game.mainGameMusic.isPlaying()) {
+                game.mainGameMusic.stop();
+            } else {
+                game.mainGameMusic.play();
+            }
         } else {
-            audio.play();
+            menuPanel.musicClick();
+            howPanel.musicClick();
+            if (menuMusic.isPlaying()) {
+                menuMusic.stop();
+            } else {
+                menuMusic.play();
+            }
         }
     }
-
 }

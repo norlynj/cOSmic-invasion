@@ -31,6 +31,7 @@ public class AudioPlayer {
 
     //audio starts playing
     public void play() {
+        clip.setFramePosition(0); // Reset playhead position to start
         clip.start();
 
     }
@@ -44,7 +45,6 @@ public class AudioPlayer {
     //the audio stops playing
     public void stop() {
         clip.stop();
-
     }
 
     public boolean isPlaying() {

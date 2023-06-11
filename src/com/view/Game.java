@@ -50,6 +50,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         addComponentsToFrame();
         setDoubleBuffered(true);
 
+        musicOffButton.setVisible(false);
         questionPane.setVisible(false);
     }
 
@@ -166,7 +167,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                         gameOver = true;
                     }
                     if (v.shoot()) {
-                        virusBlasts.add(new Blast(v.x() + 40, v.y() + 55, "spark", 1)); // alien center is +40,+55
+                        virusBlasts.add(new Blast(v.x() + 40, v.y() + 55, "spark", 1));
                     }
                     v.setPaused(pause);
                     v.paint(g);
@@ -630,7 +631,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         pauseExitButton.setBounds(587, 300, 150, 65);
 
 
-        if (successImage.isVisible()) {
+        if (successImage.isVisible() || gameOverImage.isVisible()) {
             homeButton.setVisible(true);
             pauseButton.setVisible(false);
             playButton.setVisible(false);

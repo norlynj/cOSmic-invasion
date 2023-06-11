@@ -15,6 +15,7 @@ public class GameObject {
     protected double scaleSize;
     protected double width, height;
     protected int range;
+    protected boolean paused; // Flag to indicate whether the game is paused or not
 
     public GameObject(int x, int y, String fileName, double scaleSize) {
         this.scaleSize = scaleSize;
@@ -37,11 +38,15 @@ public class GameObject {
         width = img.getWidth(null) * scaleSize;
         height = img.getHeight(null) * scaleSize;
 
-        move();
+        if (!paused) { // Check if the game is not paused
+            move();
+        }
         // draw image
         Graphics2D g2 = (Graphics2D) g;
         g2.drawImage(img, tx, null);
-        update();
+        if (!paused) { // Check if the game is not paused
+            update();
+        }
     }
 
     public void move() {
@@ -86,4 +91,11 @@ public class GameObject {
         return height;
     }
 
+    public void setPaused(boolean paused) {
+        this.paused = paused;
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
 }

@@ -208,7 +208,11 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                     messages.add(new Message("Wrong Answer. You didn't get the boost", Color.RED));
                 }
                 boostHit = false;
-                return;
+                // Remove the action listener from the buttons
+                choiceAButton.removeActionListener(this);
+                choiceBButton.removeActionListener(this);
+                choiceCButton.removeActionListener(this);
+                choiceDButton.removeActionListener(this);
             }
         };
 
@@ -295,8 +299,10 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         drawButtonsAndsLabels();
+        paintLivesandKills(g);
 
         if (boostHit) {
+            drawSprites(g, true);
             questionPane.setVisible(true);
         } else {
             questionPane.setVisible(false);
@@ -311,24 +317,25 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             }
 
             if (!playing || isCutsceneShowing) {
+                drawSprites(g, true);
                 return;
             }
             if (tux.lives() > 0 && !gameOver) {
-                drawSprites(g);
+                drawSprites(g, false);
                 removals();
                 checkCollisions();
                 updateBlastSpeedBar(g);
                 updateRewardTimer();
             } else {
                 gameOverImage.setVisible(true);
+                return;
             }
-            paintLivesandKills(g);
             Toolkit.getDefaultToolkit().sync();
         }
     }
 
 
-    private void drawSprites(Graphics g) {
+    private void drawSprites(Graphics g, boolean pause) {
         // paint messages
         g.setFont(new Font("Dialog", Font.PLAIN, 20));
         for (int i = 0; i < messages.size(); i++) {
@@ -339,11 +346,13 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
         // paint explosions
         for (Explosion e : explosions) {
+            e.setPaused(pause);
             e.paint(g);
         }
 
         // paint boost
         for (FlyingBoost f : boost) {
+            f.setPaused(pause);
             f.paint(g);
         }
 
@@ -358,6 +367,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                     if (v.shoot()) {
                         virusBlasts.add(new Blast(v.x() + 40, v.y() + 55, "spark", 1)); // alien center is +40,+55
                     }
+                    v.setPaused(pause);
                     v.paint(g);
                 }
             }
@@ -365,11 +375,13 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
         // paint tuxBlasts
         for (Blast b : tuxBlasts) {
+            b.setPaused(pause);
             b.paint(g);
         }
 
         // paint alien tuxBlasts
         for (Blast b : virusBlasts) {
+            b.setPaused(pause);
             b.paint(g);
         }
 
@@ -378,6 +390,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             tuxBlasts.add(new Blast(tux.x() + 115, tux.y() + 60, "bit-1", 0));
         }
 
+        tux.setPaused(pause);
         tux.paint(g);
     }
 

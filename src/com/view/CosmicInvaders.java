@@ -51,6 +51,7 @@ public class CosmicInvaders {
             cardLayout.show(contentPane, "game" );
             menuMusic.stop();
             mainGameMusic.play();
+            mainGameMusic.loop();
             game.startGame(1);
         });
         menuPanel.getInstructionsButton().addActionListener(e -> cardLayout.show(contentPane, "howPanel" ));

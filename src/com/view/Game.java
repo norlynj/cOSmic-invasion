@@ -119,14 +119,12 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             updateGame(g);
         } else {
             gameOverImage.setVisible(true);
-            gameoverBg.play();
         }
     }
 
     private boolean shouldStartNextLevel() {
         if (tux.getKills() == 30 && currentLevel == 3) {
             successImage.setVisible(true);
-            success.play();
             return true;
         }
 
@@ -310,6 +308,11 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                 i--;
             }
         }
+        if (!isPlayerAlive()) {
+            gameoverBg.play(); // play gameover
+        } else if (tux.getKills() == 30 && currentLevel == 3) { // if tux finishes all levels
+            success.play();
+        }
     }
 
 
@@ -381,6 +384,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                 cutSceneImage.setVisible(false);
                 isCutsceneShowing = false;
                 mainGameMusic.play();
+                mainGameMusic.loop();
             }
         });
         timer.setRepeats(false);

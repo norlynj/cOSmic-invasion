@@ -29,7 +29,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private ImageButton homeButton, musicOnButton, musicOffButton, pauseButton, choiceAButton, choiceBButton, choiceCButton, choiceDButton;
     private JPanel questionPanel, questionWrapper, choicesPanel;
     private JScrollPane questionPane;
-    private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
+    private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: System Shutdown"};
     private QuestionSheet questionSheet;
     Image memoryImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
 
@@ -46,7 +46,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         initializeLabels();
         initializeQuestionsPanel();
         questionPane.setVisible(false);
-        startGame(1);
         initializeButtons();
         setListeners();
         addComponentsToFrame();
@@ -89,10 +88,11 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     private void handleRegularGame(Graphics g) {
         questionPane.setVisible(false);
-        if (!playing) {
+        if (!playing && isPlayerAlive()) {
             drawSprites(g, true);
             return;
         }
+
         if (shouldStartNextLevel()) {
             return;
         }
@@ -570,6 +570,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private void addComponentsToFrame() {
         this.add(homeButton);
         this.add(musicOnButton);
+        this.add(musicOffButton);
         this.add(pauseButton);
         this.add(levelLabel);
         this.add(livesLabel);
@@ -677,5 +678,17 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         view.component.Frame frame = new Frame("Menu Panel");
         frame.add(m);
         frame.setVisible(true);
+    }
+
+    public ImageButton getHomeButton() {
+        return homeButton;
+    }
+
+    public ImageButton getMusicOnButton() {
+        return musicOnButton;
+    }
+
+    public ImageButton getMusicOffButton() {
+        return musicOffButton;
     }
 }

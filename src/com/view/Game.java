@@ -309,8 +309,10 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             }
         }
         if (!isPlayerAlive()) {
+            mainGameMusic.stop();
             gameoverBg.play(); // play gameover
         } else if (tux.getKills() == 30 && currentLevel == 3) { // if tux finishes all levels
+            mainGameMusic.stop();
             success.play();
         }
     }

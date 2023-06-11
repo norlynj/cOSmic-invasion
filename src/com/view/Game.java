@@ -26,7 +26,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private ArrayList<Message> messages;
     private JLabel levelLabel, livesLabel, killLabel, cutSceneImage, gameOverImage, successImage, correct, wrong, questionLabel, choiceALabel, choiceBLabel, choiceCLabel, choiceDLabel;
     private ImageIcon cutSceneBG;
-    private ImageButton musicOnButton, musicOffButton, pauseButton, choiceAButton, choiceBButton, choiceCButton, choiceDButton;
+    private ImageButton homeButton, musicOnButton, musicOffButton, pauseButton, choiceAButton, choiceBButton, choiceCButton, choiceDButton;
     private JPanel questionPanel, questionWrapper, choicesPanel;
     private JScrollPane questionPane;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
@@ -543,12 +543,14 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     }
 
     private void initializeButtons() {
+        homeButton = new ImageButton("buttons/home.png");
         musicOnButton = new ImageButton("buttons/music-on.png");
         musicOffButton = new ImageButton("buttons/music-off.png");
         pauseButton = new ImageButton("buttons/pause.png");
     }
 
     private void setListeners(){
+        homeButton.hover("buttons/home-hover.png", "buttons/home.png");
         musicOnButton.hover("buttons/music-off-hover.png", "buttons/music-on.png");
         musicOffButton.hover("buttons/music-on-hover.png", "buttons/music-off.png");
         pauseButton.hover("buttons/pause-hover.png", "buttons/pause.png");
@@ -566,7 +568,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     }
 
     private void addComponentsToFrame() {
-        this.add(musicOffButton);
+        this.add(homeButton);
         this.add(musicOnButton);
         this.add(pauseButton);
         this.add(levelLabel);
@@ -588,6 +590,15 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         musicOnButton.setBounds(screenW - 100, 22, 40, 54);
         musicOffButton.setBounds(screenW - 100, 22, 40, 54);
         pauseButton.setBounds(screenW - 180, 30, 73, 40);
+        homeButton.setBounds(screenW - 180, 22, 40, 54);
+
+        if (successImage.isVisible()) {
+            homeButton.setVisible(true);
+            pauseButton.setVisible(false);
+        } else {
+            homeButton.setVisible(false);
+            pauseButton.setVisible(true);
+        }
     }
 
 

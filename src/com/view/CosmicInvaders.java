@@ -18,7 +18,7 @@ public class CosmicInvaders {
     public CosmicInvaders(){
         menuMusic.play();
         menuMusic.loop();
-        frame = new Frame("CosmicInvaders");
+        frame = new Frame("Cosmic Invasion");
 
         // create Panels
         menuPanel = new MenuPanel();

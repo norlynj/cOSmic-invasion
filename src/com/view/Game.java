@@ -24,60 +24,320 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private ArrayList<FlyingBoost> boost;
     private ArrayList<Explosion> explosions;
     private ArrayList<Message> messages;
-    private JLabel levelLabel, livesLabel, killLabel;
+    private JLabel levelLabel, livesLabel, killLabel, cutSceneImage, gameOverImage, successImage, correct, wrong, questionLabel, choiceALabel, choiceBLabel, choiceCLabel, choiceDLabel;
     private ImageIcon cutSceneBG;
-    private JLabel cutSceneImage, gameOverImage, successImage, correct, wrong;
-    private JLabel questionLabel, choiceALabel, choiceBLabel, choiceCLabel, choiceDLabel;
-    private ImageButton choiceAButton, choiceBButton, choiceCButton, choiceDButton;
-    boolean isCutsceneShowing = true;
+    private ImageButton homeButton, musicOnButton, musicOffButton, pauseButton, choiceAButton, choiceBButton, choiceCButton, choiceDButton;
     private JPanel questionPanel, questionWrapper, choicesPanel;
     private JScrollPane questionPane;
-    private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
+    private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: System Shutdown"};
     private QuestionSheet questionSheet;
     Image memoryImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
 
-    Timer t = new Timer(16, this);
+    private Timer t = new Timer(16, this);
     private int rewardTimer, currentLevel;
-    boolean playing, gameOver, boostHit = false;
+    private boolean playing, gameOver, boostHit = false, isCutsceneShowing = true;
 
-    private ImageButton musicOnButton, musicOffButton, pauseButton;
     public Game() {
         super("bg/lvl1-bg.png");
 
         t.start();
         questionSheet = new QuestionSheet();
-        questionSheet.getRandomQuestion();
 
         initializeLabels();
         initializeQuestionsPanel();
         questionPane.setVisible(false);
-        startGame(1);
         initializeButtons();
         setListeners();
         addComponentsToFrame();
         setDoubleBuffered(true);
     }
 
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        drawButtonsAndsLabels();
+
+        if (isCutsceneShowing || gameOver) {
+            handleSpecialCases(g);
+            return;
+        }
+
+        paintLivesandKills(g);
+
+        if (boostHit) {
+            handleBoostHit(g);
+        } else {
+            handleRegularGame(g);
+        }
+
+        Toolkit.getDefaultToolkit().sync();
+    }
+
+    private void handleSpecialCases(Graphics g) {
+        if (gameOver) {
+            gameOverImage.setVisible(true);
+            gameOverImage.paint(g);
+        }
+    }
+
+    private void handleBoostHit(Graphics g) {
+        drawSprites(g, true);
+        questionPane.setVisible(true);
+    }
+
+    private void handleRegularGame(Graphics g) {
+        questionPane.setVisible(false);
+        if (!playing && isPlayerAlive()) {
+            drawSprites(g, true);
+            return;
+        }
+
+        if (shouldStartNextLevel()) {
+            return;
+        }
+
+        if (isPlayerAlive()) {
+            updateGame(g);
+        } else {
+            gameOverImage.setVisible(true);
+        }
+    }
+
+    private boolean shouldStartNextLevel() {
+        if (tux.getKills() == 30 && currentLevel == 3) {
+            successImage.setVisible(true);
+            return true;
+        }
+
+        if (tux.getKills() == 20 && currentLevel == 2) {
+            startGame(3);
+            return true;
+        }
+
+        if (tux.getKills() == 15 && currentLevel == 1) {
+            startGame(2);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isPlayerAlive() {
+        return tux.lives() > 0 && !gameOver;
+    }
+
+    private void updateGame(Graphics g) {
+        drawSprites(g, false);
+        removals();
+        checkCollisions();
+        updateBlastSpeedBar(g);
+        updateRewardTimer();
+    }
+
+    private void drawSprites(Graphics g, boolean pause) {
+        // paint messages
+        g.setFont(new Font("Dialog", Font.PLAIN, 20));
+        for (int i = 0; i < messages.size(); i++) {
+            g.setColor(messages.get(i).color());
+            g.drawString(messages.get(i).message(), 18, 160 + 20 * i);
+            messages.get(i).incTime();
+        }
+
+        // paint explosions
+        for (Explosion e : explosions) {
+            e.setPaused(pause);
+            e.paint(g);
+        }
+
+        // paint boost
+        for (FlyingBoost f : boost) {
+            f.setPaused(pause);
+            f.paint(g);
+        }
+
+        // paint viruses
+        for (Virus[] v1 : viruses) {
+            for (Virus v : v1) {
+                if (v.isAlive()) {
+                    if (v.y() > screenH + 10) {
+                        // explosionSound.play();
+                        gameOver = true;
+                    }
+                    if (v.shoot()) {
+                        virusBlasts.add(new Blast(v.x() + 40, v.y() + 55, "spark", 1)); // alien center is +40,+55
+                    }
+                    v.setPaused(pause);
+                    v.paint(g);
+                }
+            }
+        }
+
+        // paint tuxBlasts
+        for (Blast b : tuxBlasts) {
+            b.setPaused(pause);
+            b.paint(g);
+        }
+
+        // paint alien tuxBlasts
+        for (Blast b : virusBlasts) {
+            b.setPaused(pause);
+            b.paint(g);
+        }
+
+        if (tux.checkShot()) {
+            tuxBlasts.add(new Blast(tux.x() + 11, tux.y() + 60, "bit-0", 0));
+            tuxBlasts.add(new Blast(tux.x() + 115, tux.y() + 60, "bit-1", 0));
+        }
+
+        tux.setPaused(pause);
+        tux.paint(g);
+    }
+
+    private void removals() {
+
+        // removes expired messages
+        for (int i = 0; i < messages.size(); i++) {
+            if (messages.get(i).time() <= 0) {
+                messages.remove(i);
+                i--;
+            }
+        }
+
+        // removes expired explosions
+        for (int i = 0; i < explosions.size(); i++) {
+            if (explosions.get(i).time() <= 0) {
+                explosions.remove(i);
+                i--;
+            }
+        }
+
+        // removes tuxBlasts outside of screen
+        for (int i = 0; i < tuxBlasts.size(); i++) {
+            if (tuxBlasts.get(i).y() < -50) {
+                tuxBlasts.remove(i);
+                i--;
+            }
+        }
+        for (int i = 0; i < virusBlasts.size(); i++) {
+            if (virusBlasts.get(i).y() > screenH + 50) {
+                virusBlasts.remove(i);
+                i--;
+            }
+        }
+
+        // removes boost outside of screen
+        for (int i = 0; i < boost.size(); i++) {
+            if (boost.get(i).x() > screenW + 50) {
+                boost.remove(i);
+                i--;
+            }
+        }
+    }
+
+
+    private void checkCollisions() {
+        // compare every alien with every tux blast
+        for (int r = 0; r < viruses.length; r++) {
+            for (int c = 0; c < viruses[r].length; c++) {
+                Virus v = viruses[r][c];
+                for (int i = 0; i < tuxBlasts.size(); i++) {
+                    Blast b = tuxBlasts.get(i);
+                    if (b.hit(v)) {
+                        explosions.add(new Explosion(b));
+                        //explosionSound.play();
+                        tuxBlasts.remove(i);
+                        v.hit();
+                        if (v.getShotsRequired() == 0 && v.isAlive()) {
+                            v.setAlive(false);
+                            v.moveOutOfScreen();
+                            tux.increaseKills();
+                            messages.add(new Message("Virus destroyed", Color.cyan));
+                        }
+                        i--;
+                    }
+                }
+            }
+        }
+
+        // compare every reward with every blast
+        for (int i = 0; i < tuxBlasts.size(); i++) {
+            Blast b = tuxBlasts.get(i);
+            for (int x = 0; x < boost.size(); x++) {
+                if (b.hit(boost.get(x))) {
+                    boostHit = true;
+                    updateQuestion();
+                    checkAnswers(x, boost.get(x));
+                    tuxBlasts.remove(i);
+                    boost.remove(x);
+                    x--;
+                    i--;
+                }
+            }
+        }
+
+        // compare tux with every blast
+        for (int i = 0; i < virusBlasts.size(); i++) {
+            Blast b = virusBlasts.get(i);
+            if (b.hit(tux)) {
+                explosions.add(new Explosion(b));
+                //explosionSound.play();
+                virusBlasts.remove(i);
+                tux.hit();
+                messages.add(new Message("Tux got hit", Color.RED));
+                messages.add(new Message("Reload increased to " + tux.getReloadTime()[1], Color.RED));
+                i--;
+            }
+        }
+    }
+
+
+    private void updateBlastSpeedBar(Graphics g) {
+        g.setColor(new Color(130, 130, 130));
+        g.fillRect(50 - 1, screenH - 100 - 1, tux.getReloadTime()[1] * (200 / tux.getReloadTime()[1]) + 2, 10 + 2);
+        g.setColor(Color.BLUE);
+        g.fillRect(50, screenH - 100,
+                (tux.getReloadTime()[1] - tux.getReloadTime()[0]) * (200 / tux.getReloadTime()[1]), 10);
+    }
+
+    private void paintLivesandKills(Graphics g) {
+        // update kill
+        g.setFont(new Font("Dialog", Font.PLAIN, 20));
+        g.setColor(Color.GREEN);
+        g.drawString(tux.getKills() + "", 120, 115);
+
+        // update Lives
+        Graphics2D g2d = (Graphics2D) g;
+        g.setColor(Color.RED);
+        for (int i = 0; i < tux.lives(); i++) { // for firewall shield token
+            if (currentLevel == 1) {
+                g2d.drawImage(memoryImage, 120 + 30 * i, 60, this);
+            } else if ((currentLevel == 2 || currentLevel == 3) && (i+1) % 2 == 0) {
+                g2d.drawImage(memoryImage, 120 + 30 * i/2, 60, this);
+            }
+        }
+    }
+
+    private void updateRewardTimer() {
+        rewardTimer++;
+
+        if (rewardTimer / 300 == 1) {
+            rewardTimer = 0;
+            if (Math.random() > 0.5) { // show blast boost randomly
+                boost.add(new Ammo());
+            } else {
+                int lifeThreshold = currentLevel != 1 ? 6 : 3;
+                if (tux.lives() < lifeThreshold) { // show life boost when life is less than 3
+                    boost.add(new Memory());
+                }
+            }
+        }
+    }
+
     public void startGame(int level) {
         currentLevel = level;
-        setImage("bg/lvl" + currentLevel + "-bg.png");
-        gameOverImage.setVisible(false);
-        successImage.setVisible(false);
-        correct.setVisible(false);
-        wrong.setVisible(false);
 
-
-        tux = new Tux(screenW / 2, 557, currentLevel);
-        tuxBlasts = new ArrayList<Blast>();
-        virusBlasts = new ArrayList<Blast>();
-        boost = new ArrayList<FlyingBoost>();
-        explosions = new ArrayList<Explosion>();
-        messages = new ArrayList<Message>();
-
-        rewardTimer = 0;
-        playing = true;
-        gameOver = false;
-
+        // show level number
         if (currentLevel == 2 || currentLevel == 3) {
             cutSceneBG = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/lvl" + level + "-cutscene.gif")));
         }
@@ -93,6 +353,26 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         });
         timer.setRepeats(false);
         timer.start();
+
+        // set bg image
+        setImage("bg/lvl" + currentLevel + "-bg.png");
+        gameOverImage.setVisible(false);
+        successImage.setVisible(false);
+        correct.setVisible(false);
+        wrong.setVisible(false);
+
+        // create new instance of game objects
+        tux = new Tux(screenW / 2, 557, currentLevel);
+        tuxBlasts = new ArrayList<Blast>();
+        virusBlasts = new ArrayList<Blast>();
+        boost = new ArrayList<FlyingBoost>();
+        explosions = new ArrayList<Explosion>();
+        messages = new ArrayList<Message>();
+
+        rewardTimer = 0;
+        playing = true;
+        gameOver = false;
+
 
         // determine viruses on each level
         String[] colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green"};
@@ -188,7 +468,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         return choicePanel;
     }
 
-    private void checkAnswers(int boostNumber) {
+    private void checkAnswers(int boostNumber, FlyingBoost fBoost) {
 
         ActionListener buttonActionListener = new ActionListener() {
             @Override
@@ -196,13 +476,16 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                 JButton clickedButton = (JButton) e.getSource();
 
                 if (questionSheet.correctChoice.equals(clickedButton.getName())) {
-                    System.out.println("correct");
+                    if (fBoost != null && fBoost.isType("bullet")) {
 
-                    if (!boost.isEmpty() && boost.get(boostNumber).isType("bullet")) {
                         tux.decreaseReloadTime();
                         messages.add(new Message("Reload decreased to " + tux.getReloadTime()[1], Color.GREEN));
-                    } else if (!boost.isEmpty() && boost.get(boostNumber).isType("memory")) {
-                        tux.addLife(1);
+                    } else if (fBoost != null && fBoost.isType("memory")) {
+                        if (currentLevel != 1) {
+                            tux.addLife(2);
+                        } else {
+                            tux.addLife(1);
+                        }
                         messages.add(new Message("Memory increased", Color.GREEN));
                     }
                 } else {
@@ -210,6 +493,12 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                     messages.add(new Message("Wrong Answer. You didn't get the boost", Color.RED));
                 }
                 boostHit = false;
+                // Remove the action listener from the buttons
+                choiceAButton.removeActionListener(this);
+                choiceBButton.removeActionListener(this);
+                choiceCButton.removeActionListener(this);
+                choiceDButton.removeActionListener(this);
+                playing = true;
             }
         };
 
@@ -254,12 +543,14 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     }
 
     private void initializeButtons() {
+        homeButton = new ImageButton("buttons/home.png");
         musicOnButton = new ImageButton("buttons/music-on.png");
         musicOffButton = new ImageButton("buttons/music-off.png");
         pauseButton = new ImageButton("buttons/pause.png");
     }
 
     private void setListeners(){
+        homeButton.hover("buttons/home-hover.png", "buttons/home.png");
         musicOnButton.hover("buttons/music-off-hover.png", "buttons/music-on.png");
         musicOffButton.hover("buttons/music-on-hover.png", "buttons/music-off.png");
         pauseButton.hover("buttons/pause-hover.png", "buttons/pause.png");
@@ -277,8 +568,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     }
 
     private void addComponentsToFrame() {
-        this.add(musicOffButton);
+        this.add(homeButton);
         this.add(musicOnButton);
+        this.add(musicOffButton);
         this.add(pauseButton);
         this.add(levelLabel);
         this.add(livesLabel);
@@ -292,240 +584,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        drawButtonsAndsLabels();
-
-        if (boostHit) {
-            g.drawImage(memoryImage, 0, 0, null);
-            questionPane.setVisible(true);
-        } else {
-            questionPane.setVisible(false);
-            if (tux.getKills() == 30 && currentLevel == 3){
-                successImage.setVisible(true);
-            } else if (tux.getKills() == 20 && currentLevel == 2) {
-                startGame(3);
-                return;
-            } else if (tux.getKills() == 15 && currentLevel == 1) {
-                startGame(2);
-                return;
-            }
-
-            if (!playing || isCutsceneShowing) {
-                return;
-            }
-            if (tux.lives() > 0 && !gameOver) {
-                drawSprites(g);
-                removals();
-                checkCollisions();
-                updateBlastSpeedBar(g);
-                updateRewardTimer();
-            } else {
-                gameOverImage.setVisible(true);
-            }
-            paintLivesandKills(g);
-            Toolkit.getDefaultToolkit().sync();
-        }
-    }
-
-
-
-    private void drawSprites(Graphics g) {
-        // paint messages
-        g.setFont(new Font("Dialog", Font.PLAIN, 20));
-        for (int i = 0; i < messages.size(); i++) {
-            g.setColor(messages.get(i).color());
-            g.drawString(messages.get(i).message(), 18, 160 + 20 * i);
-            messages.get(i).incTime();
-        }
-
-        // paint explosions
-        for (Explosion e : explosions) {
-            e.paint(g);
-        }
-
-        // paint boost
-        for (FlyingBoost f : boost) {
-            f.paint(g);
-        }
-
-        // paint viruses
-        for (Virus[] v1 : viruses) {
-            for (Virus v : v1) {
-                if (v.isAlive()) {
-                    if (v.y() > screenH + 10) {
-                        // explosionSound.play();
-                        gameOver = true;
-                    }
-                    if (v.shoot()) {
-                        virusBlasts.add(new Blast(v.x() + 40, v.y() + 55, "spark", 1)); // alien center is +40,+55
-                    }
-                    v.paint(g);
-                }
-            }
-        }
-
-        // paint tuxBlasts
-        for (Blast b : tuxBlasts) {
-            b.paint(g);
-        }
-
-        // paint alien tuxBlasts
-        for (Blast b : virusBlasts) {
-            b.paint(g);
-        }
-
-        if (tux.checkShot()) {
-            tuxBlasts.add(new Blast(tux.x() + 11, tux.y() + 60, "bit-0", 0));
-            tuxBlasts.add(new Blast(tux.x() + 115, tux.y() + 60, "bit-1", 0));
-        }
-
-        tux.paint(g);
-    }
-
-    private void removals() {
-
-        // removes expired messages
-        for (int i = 0; i < messages.size(); i++) {
-            if (messages.get(i).time() <= 0) {
-                messages.remove(i);
-                i--;
-            }
-        }
-
-        // removes expired explosions
-        for (int i = 0; i < explosions.size(); i++) {
-            if (explosions.get(i).time() <= 0) {
-                explosions.remove(i);
-                i--;
-            }
-        }
-
-        // removes tuxBlasts outside of screen
-        for (int i = 0; i < tuxBlasts.size(); i++) {
-            if (tuxBlasts.get(i).y() < -50) {
-                tuxBlasts.remove(i);
-                i--;
-            }
-        }
-        for (int i = 0; i < virusBlasts.size(); i++) {
-            if (virusBlasts.get(i).y() > screenH + 50) {
-                virusBlasts.remove(i);
-                i--;
-            }
-        }
-
-        // removes boost outside of screen
-        for (int i = 0; i < boost.size(); i++) {
-            if (boost.get(i).x() > screenW + 50) {
-                boost.remove(i);
-                i--;
-            }
-        }
-    }
-
-
-    private void checkCollisions() {
-        // compare every alien with every tux blast
-        for (int r = 0; r < viruses.length; r++) {
-            for (int c = 0; c < viruses[r].length; c++) {
-                Virus v = viruses[r][c];
-                for (int i = 0; i < tuxBlasts.size(); i++) {
-                    Blast b = tuxBlasts.get(i);
-                    if (b.hit(v)) {
-                        explosions.add(new Explosion(b));
-                        //explosionSound.play();
-                        tuxBlasts.remove(i);
-                        v.hit();
-                        if (v.getShotsRequired() == 0 && v.isAlive()) {
-                            v.setAlive(false);
-                            v.moveOutOfScreen();
-                            tux.increaseKills();
-                            messages.add(new Message("Virus destroyed", Color.cyan));
-                        }
-                        i--;
-                    }
-                }
-            }
-        }
-
-        // compare every reward with every blast
-        for (int i = 0; i < tuxBlasts.size(); i++) {
-            Blast b = tuxBlasts.get(i);
-            for (int x = 0; x < boost.size(); x++) {
-                if (b.hit(boost.get(x))) {
-                    updateQuestion();
-                    checkAnswers(x);
-                    tuxBlasts.remove(i);
-                    boost.remove(x);
-                    x--;
-                    i--;
-                    boostHit = true;
-                }
-            }
-        }
-
-        // compare tux with every blast
-        for (int i = 0; i < virusBlasts.size(); i++) {
-            Blast b = virusBlasts.get(i);
-            if (b.hit(tux)) {
-                explosions.add(new Explosion(b));
-                //explosionSound.play();
-                virusBlasts.remove(i);
-                tux.hit();
-                messages.add(new Message("Tux got hit", Color.RED));
-                messages.add(new Message("Reload increased to " + tux.getReloadTime()[1], Color.RED));
-                i--;
-            }
-        }
-    }
-
-    private void showQuestion() {
-
-    }
-
-    private void updateBlastSpeedBar(Graphics g) {
-        g.setColor(new Color(130, 130, 130));
-        g.fillRect(50 - 1, screenH - 100 - 1, tux.getReloadTime()[1] * (200 / tux.getReloadTime()[1]) + 2, 10 + 2);
-        g.setColor(Color.BLUE);
-        g.fillRect(50, screenH - 100,
-                (tux.getReloadTime()[1] - tux.getReloadTime()[0]) * (200 / tux.getReloadTime()[1]), 10);
-    }
-
-    private void paintLivesandKills(Graphics g) {
-        // update kill
-        g.setFont(new Font("Dialog", Font.PLAIN, 20));
-        g.setColor(Color.GREEN);
-        g.drawString(tux.getKills() + "", 120, 115);
-
-        // update Lives
-        Graphics2D g2d = (Graphics2D) g;
-        g.setColor(Color.RED);
-        for (int i = 0; i < tux.lives(); i++) { // for firewall shield token
-            if (currentLevel == 1) {
-                g2d.drawImage(memoryImage, 120 + 30 * i, 60, this);
-            } else if ((currentLevel == 2 || currentLevel == 3) && (i+1) % 2 == 0) {
-                g2d.drawImage(memoryImage, 120 + 30 * i/2, 60, this);
-            }
-        }
-    }
-
-    private void updateRewardTimer() {
-        rewardTimer++;
-
-        if (rewardTimer / 300 == 1) {
-            rewardTimer = 0;
-            if (Math.random() > 0.5) { // show blast boost randomly
-                boost.add(new Ammo());
-            } else {
-                if (tux.lives() < 3) { // show life boost when life is less than 3
-                    boost.add(new Memory());
-                }
-            }
-        }
-    }
-
     private void drawButtonsAndsLabels() {
         levelLabel.setBounds(18, 25, 370, 33);
         livesLabel.setBounds(18, 60, 100, 28);
@@ -533,6 +591,15 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         musicOnButton.setBounds(screenW - 100, 22, 40, 54);
         musicOffButton.setBounds(screenW - 100, 22, 40, 54);
         pauseButton.setBounds(screenW - 180, 30, 73, 40);
+        homeButton.setBounds(screenW - 180, 22, 40, 54);
+
+        if (successImage.isVisible()) {
+            homeButton.setVisible(true);
+            pauseButton.setVisible(false);
+        } else {
+            homeButton.setVisible(false);
+            pauseButton.setVisible(true);
+        }
     }
 
 
@@ -611,5 +678,17 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         view.component.Frame frame = new Frame("Menu Panel");
         frame.add(m);
         frame.setVisible(true);
+    }
+
+    public ImageButton getHomeButton() {
+        return homeButton;
+    }
+
+    public ImageButton getMusicOnButton() {
+        return musicOnButton;
+    }
+
+    public ImageButton getMusicOffButton() {
+        return musicOffButton;
     }
 }

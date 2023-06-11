@@ -37,6 +37,7 @@ public class CosmicInvaders {
 
         listenToMenu();
         listenToHow();
+        listenToMainGame();
 
         frame.addKeyListener(game);
         frame.addMouseListener(game);
@@ -46,7 +47,10 @@ public class CosmicInvaders {
     }
 
     public void listenToMenu() {
-        menuPanel.getStartButton().addActionListener(e -> cardLayout.show(contentPane, "game" ));
+        menuPanel.getStartButton().addActionListener(e -> {
+            cardLayout.show(contentPane, "game" );
+            game.startGame(1);
+        });
         menuPanel.getInstructionsButton().addActionListener(e -> cardLayout.show(contentPane, "howPanel" ));
         menuPanel.getExitButton().addActionListener(e -> System.exit(0));
         menuPanel.getMusicOnButton().addActionListener(e -> soundClick());
@@ -57,6 +61,12 @@ public class CosmicInvaders {
          howPanel.getMusicOnButton().addActionListener(e -> soundClick());
          howPanel.getMusicOffButton().addActionListener(e -> soundClick());
          howPanel.getHomeButton().addActionListener(e -> cardLayout.show(contentPane, "menuPanel"));
+    }
+
+    public void listenToMainGame() {
+        game.getHomeButton().addActionListener(e -> cardLayout.show(contentPane, "menuPanel"));
+        game.getMusicOnButton().addActionListener(e -> soundClick());
+        game.getMusicOffButton().addActionListener(e -> soundClick());
     }
 
     public void soundClick() {

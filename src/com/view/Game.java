@@ -47,6 +47,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     AudioPlayer wrongMusic = new AudioPlayer("wrong.wav");
     AudioPlayer gameoverBg = new AudioPlayer("gameover_bg.wav");
     AudioPlayer success = new AudioPlayer("success_bg.wav");
+    AudioPlayer laser = new AudioPlayer("laser.wav");
 
     public Game(Frame frame) {
         super("bg/lvl1-bg.png");
@@ -205,6 +206,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         if (tux.checkShot()) {
             tuxBlasts.add(new Blast(tux.x() + 11, tux.y() + 60, "bit-0", 0));
             tuxBlasts.add(new Blast(tux.x() + 115, tux.y() + 60, "bit-1", 0));
+            laser.play();
         }
 
         tux.setPaused(pause);
@@ -710,7 +712,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                 break;
             case 32: // space
                 if (tux!=null) {
-                    tux.setShooting(false            );
+                    tux.setShooting(false);
                 }
                 break;
             default:

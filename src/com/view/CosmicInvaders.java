@@ -1,7 +1,6 @@
 package view;
 import view.component.AudioPlayer;
 import view.component.Frame;
-import view.component.Game;
 import view.component.Panel;
 
 import java.awt.*;

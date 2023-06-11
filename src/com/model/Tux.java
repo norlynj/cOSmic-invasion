@@ -4,7 +4,7 @@ public class Tux extends GameObject {
     protected int vx;
     protected int hits;
     protected boolean shooting;
-    protected int[] reloadTime = { 0, 80 };
+    protected int[] reloadTime = { 0, 60 };
     protected int kills;
     protected int lives;
 

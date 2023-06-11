@@ -7,11 +7,11 @@ import java.util.Objects;
 public class  Frame extends JFrame {
     JWindow window = new JWindow();
     public Frame(String name) {
-//        loadImage("bg/splashscreen.gif");
+        loadImage("bg/splashscreen.gif");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle(name);
-//        setUndecorated(true);
+        setUndecorated(true);
         setResizable(false);
         getContentPane().setPreferredSize(new Dimension(1100, 800));
         pack();

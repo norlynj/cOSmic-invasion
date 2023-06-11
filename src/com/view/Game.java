@@ -43,6 +43,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     AudioPlayer explosion = new AudioPlayer("explosion_bg.wav");
     AudioPlayer powerUp = new AudioPlayer("powerups_bg.wav");
     AudioPlayer levelUp = new AudioPlayer("levelup_bg.wav");
+    AudioPlayer correctMusic = new AudioPlayer("correct.wav");
+    AudioPlayer wrongMusic = new AudioPlayer("wrong.wav");
     AudioPlayer gameoverBg = new AudioPlayer("gameover_bg.wav");
     AudioPlayer success = new AudioPlayer("success_bg.wav");
 
@@ -123,6 +125,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private boolean shouldStartNextLevel() {
         if (tux.getKills() == 30 && currentLevel == 3) {
             successImage.setVisible(true);
+            success.play();
             return true;
         }
 
@@ -176,7 +179,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             for (Virus v : v1) {
                 if (v.isAlive()) {
                     if (v.y() > screenH + 10) {
-                        // explosionSound.play();
                         gameOver = true;
                     }
                     if (v.shoot() && !pause && !pauseClicked) { // prevent virus from creating a sblast while on pause
@@ -408,7 +410,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         viruses = new Virus[5][3];
 
         if (level == 2) {
-            viruses = new Virus[10][2];
+            viruses = new Virus[5][4];
             levelLabel.setText(levels[1]);
             colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green", "yellow", "yellow", "yellow", "yellow", "yellow"};
         } else if (level == 3) {
@@ -516,11 +518,11 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                         }
                         messages.add(new Message("Memory increased", Color.GREEN));
                     }
-                    success.play();
+                    correctMusic.play();
                 } else {
                     System.out.println("wrong");
                     messages.add(new Message("Wrong Answer. You didn't get the boost", Color.RED));
-                    gameoverBg.play();
+                    wrongMusic.play();
                 }
                 boostHit = false;
                 // Remove the action listener from the buttons
@@ -657,7 +659,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             homeButton.setVisible(true);
             pauseButton.setVisible(false);
             playButton.setVisible(false);
-            success.play();
         } else {
             homeButton.setVisible(false);
         }

@@ -308,10 +308,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             return;
         }
 
-        if (gameOver) {
-            gameOverImage.setVisible(true);
-            return;
-        }
+
 
         paintLivesandKills(g);
 
@@ -330,16 +327,21 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                 return;
             }
 
-            if (!playing) {
-                drawSprites(g, true);
-                return;
-            }
+
             if (tux.lives() > 0 && !gameOver) {
                 drawSprites(g, false);
                 removals();
                 checkCollisions();
                 updateBlastSpeedBar(g);
                 updateRewardTimer();
+            } else {
+                gameOverImage.setVisible(true);
+                return;
+            }
+
+            if (!playing && !gameOver) {
+                drawSprites(g, true);
+                return;
             }
             Toolkit.getDefaultToolkit().sync();
         }

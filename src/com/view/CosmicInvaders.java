@@ -12,7 +12,7 @@ public class CosmicInvaders {
     private Game game;
     private Panel contentPane;
     private CardLayout cardLayout;
-    AudioPlayer mainGameMusic = new AudioPlayer("maingame_bg.wav");
+
     AudioPlayer menuMusic = new AudioPlayer("bgmusic.wav");
 
     public CosmicInvaders(){
@@ -50,8 +50,6 @@ public class CosmicInvaders {
         menuPanel.getStartButton().addActionListener(e -> {
             cardLayout.show(contentPane, "game" );
             menuMusic.stop();
-            mainGameMusic.play();
-            mainGameMusic.loop();
             game.startGame(1);
         });
         menuPanel.getInstructionsButton().addActionListener(e -> cardLayout.show(contentPane, "howPanel" ));
@@ -72,7 +70,7 @@ public class CosmicInvaders {
         game.getMusicOffButton().addActionListener(e -> soundClick());
         game.getPauseHomeButton().addActionListener(e -> {
             cardLayout.show(contentPane, "menuPanel");
-            mainGameMusic.stop();
+            game.mainGameMusic.stop();
             menuMusic.play();
         });
         game.getPauseExitButton().addActionListener(e -> System.exit(0));
@@ -85,12 +83,6 @@ public class CosmicInvaders {
             menuMusic.stop();
         } else {
             menuMusic.play();
-        }
-
-        if (mainGameMusic.isPlaying()) {
-            mainGameMusic.stop();
-        } else {
-            mainGameMusic.play();
         }
     }
 

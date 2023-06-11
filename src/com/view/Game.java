@@ -39,6 +39,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private boolean playing, gameOver, boostHit = false, isCutsceneShowing = true, pauseClicked;
 
     // Sound
+    AudioPlayer mainGameMusic = new AudioPlayer("maingame_bg.wav");
     AudioPlayer explosion = new AudioPlayer("explosion_bg.wav");
     AudioPlayer powerUp = new AudioPlayer("powerups_bg.wav");
     AudioPlayer levelUp = new AudioPlayer("levelup_bg.wav");
@@ -113,13 +114,13 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             updateGame(g);
         } else {
             gameOverImage.setVisible(true);
+            gameoverBg.play();
         }
     }
 
     private boolean shouldStartNextLevel() {
         if (tux.getKills() == 30 && currentLevel == 3) {
             successImage.setVisible(true);
-            success.play();
             return true;
         }
 
@@ -258,7 +259,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                     Blast b = tuxBlasts.get(i);
                     if (b.hit(v)) {
                         explosions.add(new Explosion(b));
-                        new AudioPlayer("explosion_bg.wav").play();
+                        explosion.play();
                         tuxBlasts.remove(i);
                         v.hit();
                         if (v.getShotsRequired() == 0 && v.isAlive()) {
@@ -279,7 +280,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             for (int x = 0; x < boost.size(); x++) {
                 if (b.hit(boost.get(x))) {
                     boostHit = true;
-                    new AudioPlayer("powerups_bg.wav").play();
+                    powerUp.play();
                     updateQuestion();
                     checkAnswers(x, boost.get(x));
                     tuxBlasts.remove(i);
@@ -296,7 +297,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             if (b.hit(tux)) {
                 explosions.add(new Explosion(b));
                 shake();
-                new AudioPlayer("explosion_bg.wav").play();
+                explosion.play();
                 virusBlasts.remove(i);
                 tux.hit();
                 messages.add(new Message("Tux got hit", Color.RED));
@@ -365,12 +366,14 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         cutSceneImage.setIcon(cutSceneBG);
         cutSceneImage.setVisible(true);
         isCutsceneShowing = true;
-        new AudioPlayer("levelup_bg.wav").play();
-        Timer timer = new Timer(4500, new ActionListener() {
+        levelUp.play();
+        mainGameMusic.stop();
+        Timer timer = new Timer(4000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cutSceneImage.setVisible(false);
                 isCutsceneShowing = false;
+                mainGameMusic.play();
             }
         });
         timer.setRepeats(false);
@@ -510,11 +513,11 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                         }
                         messages.add(new Message("Memory increased", Color.GREEN));
                     }
-                    new AudioPlayer("success_bg.wav").play();
+                    success.play();
                 } else {
                     System.out.println("wrong");
                     messages.add(new Message("Wrong Answer. You didn't get the boost", Color.RED));
-                    new AudioPlayer("gameover_bg.wav").play();
+                    gameoverBg.play();
                 }
                 boostHit = false;
                 // Remove the action listener from the buttons
@@ -651,6 +654,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             homeButton.setVisible(true);
             pauseButton.setVisible(false);
             playButton.setVisible(false);
+            success.play();
         } else {
             homeButton.setVisible(false);
         }

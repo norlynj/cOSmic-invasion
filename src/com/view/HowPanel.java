@@ -25,7 +25,7 @@ public class HowPanel extends Panel{
         controlsAButton = new ImageButton("buttons/controls-hover.png");
         levelsAButton = new ImageButton("buttons/levels-hover.png");
 
-        entitiesAButton.setVisible(false);
+        entitiesButton.setVisible(false);
         controlsAButton.setVisible(false);
         levelsAButton.setVisible(false);
 

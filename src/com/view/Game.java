@@ -571,7 +571,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         musicOnButton = new ImageButton("buttons/music-on.png");
         musicOffButton = new ImageButton("buttons/music-off.png");
         pauseButton = new ImageButton("buttons/pause.png");
-        playButton = new ImageButton("buttons/home.png");
+        playButton = new ImageButton("buttons/play.png");
         pauseHomeButton = new ImageButton("buttons/home-cutscene.png");
         pauseExitButton = new ImageButton("buttons/exit-cutscene.png");
     }
@@ -581,7 +581,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         musicOnButton.hover("buttons/music-off-hover.png", "buttons/music-on.png");
         musicOffButton.hover("buttons/music-on-hover.png", "buttons/music-off.png");
         pauseButton.hover("buttons/pause-hover.png", "buttons/pause.png");
-        playButton.hover("buttons/home-hover.png", "buttons/home.png");
+        playButton.hover("buttons/play-hover.png", "buttons/play.png");
         pauseHomeButton.hover("buttons/home-cutscene-hover.png", "buttons/home-cutscene.png");
         pauseExitButton.hover("buttons/exit-cutscene-hover.png", "buttons/exit-cutscene.png");
 
@@ -641,10 +641,10 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         homeButton.setBounds(screenW - 180, 22, 40, 54);
         musicOnButton.setBounds(screenW - 100, 22, 40, 54);
         musicOffButton.setBounds(screenW - 100, 22, 40, 54);
-        pauseButton.setBounds(screenW - 180, 30, 73, 40);
-        playButton.setBounds(screenW - 180, 30, 73, 40);
-        pauseHomeButton.setBounds(326, 300, 150, 65);
-        pauseExitButton.setBounds(587, 300, 150, 65);
+        pauseButton.setBounds(screenW - 180, 30, 44, 44);
+        playButton.setBounds(screenW - 180, 30, 44, 44);
+        pauseHomeButton.setBounds(326, 400, 250, 65);
+        pauseExitButton.setBounds(587, 400, 250, 65);
 
 
         if (successImage.isVisible() || gameOverImage.isVisible()) {

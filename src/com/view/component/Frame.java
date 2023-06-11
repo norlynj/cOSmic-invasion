@@ -15,7 +15,7 @@ public class  Frame extends JFrame {
         setUndecorated(true);
         setResizable(false);
 
-        CustomTitleBar titleBar = new CustomTitleBar(this, name);
+        CustomTitleBar titleBar = new CustomTitleBar(this);
         setContentPane(new JPanel(new BorderLayout()));
         getContentPane().add(titleBar, BorderLayout.NORTH);
         getContentPane().setPreferredSize(new Dimension(1100, 800));

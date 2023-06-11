@@ -623,6 +623,10 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     }
 
     private void addComponentsToFrame() {
+        this.add(successImage);
+        this.add(gameOverImage);
+        this.add(cutSceneImage);
+        this.add(questionPane);
         this.add(homeButton);
         this.add(musicOnButton);
         this.add(musicOffButton);
@@ -633,12 +637,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         this.add(levelLabel);
         this.add(livesLabel);
         this.add(killLabel);
-        this.add(cutSceneImage);
-        this.add(gameOverImage);
         this.add(correct);
         this.add(wrong);
-        this.add(successImage);
-        this.add(questionPane);
+
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
     }

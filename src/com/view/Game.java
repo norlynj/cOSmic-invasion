@@ -1,7 +1,12 @@
-package view.component;
+package view;
 
 import model.*;
 import model.FlyingBoost;
+import view.component.Frame;
+import view.component.ImageButton;
+import view.component.Label;
+import view.component.Panel;
+import view.component.CustomScrollBar;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 
-public class Game extends Panel implements ActionListener, KeyListener, MouseListener {
+public class Game extends view.component.Panel implements ActionListener, KeyListener, MouseListener {
     public int screenW = this.getWidth(), screenH = this.getHeight();
     private Virus[][] viruses;
     private Tux tux;
@@ -19,23 +24,28 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
     private ArrayList<FlyingBoost> boost;
     private ArrayList<Explosion> explosions;
     private ArrayList<Message> messages;
-    private JLabel levelLabel, livesLabel, killLabel;
+    private JLabel levelLabel, livesLabel, killLabel, cutSceneImage, gameOverImage, successImage, correct, wrong, questionLabel, choiceALabel, choiceBLabel, choiceCLabel, choiceDLabel;
     private ImageIcon cutSceneBG;
-    private JLabel cutSceneImage, gameOverImage, successImage;
-    boolean isCutsceneShowing = true;
+    private ImageButton musicOnButton, musicOffButton, pauseButton, choiceAButton, choiceBButton, choiceCButton, choiceDButton;
+    private JPanel questionPanel, questionWrapper, choicesPanel;
+    private JScrollPane questionPane;
     private String[] levels = {"Level 1: System Startup", "Level 2: Malware Madness", "Level 3: Malware Madness"};
+    private QuestionSheet questionSheet;
     Image memoryImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
 
     Timer t = new Timer(16, this);
     private int rewardTimer, currentLevel;
-    boolean playing, gameOver;
-    boolean bossFight;
+    boolean playing, gameOver, boostHit = false, isCutsceneShowing = true;
 
-    private ImageButton musicOnButton, musicOffButton, pauseButton;
     public Game() {
         super("bg/lvl1-bg.png");
+
         t.start();
+        questionSheet = new QuestionSheet();
+
         initializeLabels();
+        initializeQuestionsPanel();
+        questionPane.setVisible(false);
         startGame(1);
         initializeButtons();
         setListeners();
@@ -45,11 +55,32 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
     public void startGame(int level) {
         currentLevel = level;
+
+        // show level number
+        if (currentLevel == 2 || currentLevel == 3) {
+            cutSceneBG = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/lvl" + level + "-cutscene.gif")));
+        }
+        cutSceneImage.setIcon(cutSceneBG);
+        cutSceneImage.setVisible(true);
+        isCutsceneShowing = true;
+        Timer timer = new Timer(4500, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cutSceneImage.setVisible(false);
+                isCutsceneShowing = false;
+            }
+        });
+        timer.setRepeats(false);
+        timer.start();
+
+        // set bg image
         setImage("bg/lvl" + currentLevel + "-bg.png");
         gameOverImage.setVisible(false);
         successImage.setVisible(false);
+        correct.setVisible(false);
+        wrong.setVisible(false);
 
-
+        // create new instance of game objects
         tux = new Tux(screenW / 2, 557, currentLevel);
         tuxBlasts = new ArrayList<Blast>();
         virusBlasts = new ArrayList<Blast>();
@@ -61,19 +92,6 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         playing = true;
         gameOver = false;
 
-        cutSceneBG = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/lvl" + level + "-cutscene.png")));
-        cutSceneImage.setIcon(cutSceneBG);
-        cutSceneImage.setVisible(true);
-        isCutsceneShowing = true;
-        Timer timer = new Timer(3000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cutSceneImage.setVisible(false);
-                isCutsceneShowing = false;
-            }
-        });
-        timer.setRepeats(false);
-        timer.start();
 
         // determine viruses on each level
         String[] colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green"};
@@ -101,9 +119,125 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         }
     }
 
+    private void initializeQuestionsPanel() {
+        questionPanel = new Panel("bg/questions-bg.png");
+        questionPanel.setLayout(new BoxLayout(questionPanel, BoxLayout.Y_AXIS));
+        questionPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+
+        questionLabel = new Label(questionSheet.question, true);
+        questionLabel.setForeground(Color.WHITE);
+        questionLabel.setSize(new Dimension(207, 28));
+
+        choicesPanel = new JPanel();
+        choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
+
+        choiceALabel = new Label();
+        choiceBLabel = new Label();
+        choiceCLabel = new Label();
+        choiceDLabel = new Label();
+
+        choiceAButton = new ImageButton("buttons/A.png");
+        choiceBButton = new ImageButton("buttons/B.png");
+        choiceCButton = new ImageButton("buttons/C.png");
+        choiceDButton = new ImageButton("buttons/D.png");
+        choiceAButton.setName("A");
+        choiceBButton.setName("B");
+        choiceCButton.setName("C");
+        choiceDButton.setName("D");
+
+        JPanel choiceAPanel = createChoicePanel("A", questionSheet.choiceA, choiceAButton, choiceALabel);
+        JPanel choiceBPanel = createChoicePanel("B", questionSheet.choiceB, choiceBButton, choiceBLabel);
+        JPanel choiceCPanel = createChoicePanel("C", questionSheet.choiceC, choiceCButton, choiceCLabel);
+        JPanel choiceDPanel = createChoicePanel("D", questionSheet.choiceD, choiceDButton, choiceDLabel);
+
+        choicesPanel.add(Box.createVerticalStrut(10));
+        choicesPanel.add(choiceAPanel);
+        choicesPanel.add(choiceBPanel);
+        choicesPanel.add(choiceCPanel);
+        choicesPanel.add(choiceDPanel);
+        choicesPanel.setOpaque(false);
+
+        questionPanel.add(questionLabel);
+        questionPanel.add(choicesPanel);
+        questionPanel.setAlignmentX(SwingConstants.CENTER);
+
+        questionPane = new JScrollPane(questionPanel);
+        CustomScrollBar sbH = new CustomScrollBar();
+        sbH.setOrientation(JScrollBar.HORIZONTAL);
+        questionPane.setHorizontalScrollBar(sbH);
+        questionPane.setBorder(BorderFactory.createEmptyBorder());
+        questionPane.getViewport().setOpaque(false);
+        questionPane.setOpaque(false);
+        questionPane.setBounds(198, 140, 700, 400);
+    }
+
+    private JPanel createChoicePanel(String choice, String choiceText, ImageButton choiceButton, JLabel choiceLabel) {
+        JPanel choicePanel = new JPanel();
+        choicePanel.setOpaque(false);
+        choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.X_AXIS));
+        choicePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        choicePanel.setSize(new Dimension(700, 500));
+
+        choicePanel.add(choiceButton);
+        choicePanel.add(Box.createHorizontalStrut(20));  // Add horizontal spacing between the button and label
+
+        choiceLabel.setText(choiceText);
+        choicePanel.add(choiceLabel);
+
+        return choicePanel;
+    }
+
+    private void checkAnswers(int boostNumber, FlyingBoost fBoost) {
+
+        ActionListener buttonActionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JButton clickedButton = (JButton) e.getSource();
+
+                if (questionSheet.correctChoice.equals(clickedButton.getName())) {
+                    if (fBoost != null && fBoost.isType("bullet")) {
+
+                        tux.decreaseReloadTime();
+                        messages.add(new Message("Reload decreased to " + tux.getReloadTime()[1], Color.GREEN));
+                    } else if (fBoost != null && fBoost.isType("memory")) {
+                        if (currentLevel != 1) {
+                            tux.addLife(2);
+                        } else {
+                            tux.addLife(1);
+                        }
+                        messages.add(new Message("Memory increased", Color.GREEN));
+                    }
+                } else {
+                    System.out.println("wrong");
+                    messages.add(new Message("Wrong Answer. You didn't get the boost", Color.RED));
+                }
+                boostHit = false;
+                // Remove the action listener from the buttons
+                choiceAButton.removeActionListener(this);
+                choiceBButton.removeActionListener(this);
+                choiceCButton.removeActionListener(this);
+                choiceDButton.removeActionListener(this);
+            }
+        };
+
+        choiceAButton.addActionListener(buttonActionListener);
+        choiceBButton.addActionListener(buttonActionListener);
+        choiceCButton.addActionListener(buttonActionListener);
+        choiceDButton.addActionListener(buttonActionListener);
+    }
+
+    private void updateQuestion() {
+        questionSheet.getRandomQuestion();
+        questionLabel.setText(questionSheet.question);
+        choiceALabel.setText(questionSheet.choiceA);
+        choiceBLabel.setText(questionSheet.choiceB);
+        choiceCLabel.setText(questionSheet.choiceC);
+        choiceDLabel.setText(questionSheet.choiceD);
+    }
+
     private void initializeLabels() {
-        levelLabel = new Label(levels[0]);
-        livesLabel = new Label("Lives: ");
+        levelLabel = new view.component.Label(levels[0]);
+        livesLabel = new view.component.Label("Lives: ");
         killLabel = new Label("Kills: ");
         cutSceneBG = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/lvl1-cutscene.png")));
 
@@ -118,6 +252,12 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         successImage = new JLabel();
         successImage.setBounds(0, 0, 1100, 800);
         successImage.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/success.gif"))));
+
+        correct = new JLabel();
+        correct.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/correct.png"))));
+
+        wrong = new JLabel();
+        wrong.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/wrong.png"))));
     }
 
     private void initializeButtons() {
@@ -152,44 +292,63 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         this.add(killLabel);
         this.add(cutSceneImage);
         this.add(gameOverImage);
+        this.add(correct);
+        this.add(wrong);
         this.add(successImage);
+        this.add(questionPane);
+
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        drawButtonsAndsLabels();
 
-        if (tux.getKills() == 30 && currentLevel == 3){
-            successImage.setVisible(true);
-        } else if (tux.getKills() == 20 && currentLevel == 2) {
-            startGame(3);
-            return;
-        } else if (tux.getKills() == 15 && currentLevel == 1) {
-            startGame(2);
+        drawButtonsAndsLabels();
+        if (isCutsceneShowing) {
             return;
         }
+
+
+
         paintLivesandKills(g);
 
-        if (!playing || isCutsceneShowing) {
-            return;
-        }
-        if (tux.lives() > 0 && !gameOver) {
-            drawSprites(g);
-            removals();
-            checkCollisions();
-            updateBlastSpeedBar(g);
-            updateRewardTimer();
+        if (boostHit) {
+            drawSprites(g, true);
+            questionPane.setVisible(true);
         } else {
-            gameOverImage.setVisible(true);
+            questionPane.setVisible(false);
+            if (tux.getKills() == 30 && currentLevel == 3){
+                successImage.setVisible(true);
+            } else if (tux.getKills() == 20 && currentLevel == 2) {
+                startGame(3);
+                return;
+            } else if (tux.getKills() == 15 && currentLevel == 1) {
+                startGame(2);
+                return;
+            }
+
+
+            if (tux.lives() > 0 && !gameOver) {
+                drawSprites(g, false);
+                removals();
+                checkCollisions();
+                updateBlastSpeedBar(g);
+                updateRewardTimer();
+            } else {
+                gameOverImage.setVisible(true);
+                return;
+            }
+
+            if (!playing && !gameOver) {
+                drawSprites(g, true);
+                return;
+            }
+            Toolkit.getDefaultToolkit().sync();
         }
-
-        Toolkit.getDefaultToolkit().sync();
-
     }
 
-    private void drawSprites(Graphics g) {
 
+    private void drawSprites(Graphics g, boolean pause) {
         // paint messages
         g.setFont(new Font("Dialog", Font.PLAIN, 20));
         for (int i = 0; i < messages.size(); i++) {
@@ -200,11 +359,13 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
         // paint explosions
         for (Explosion e : explosions) {
+            e.setPaused(pause);
             e.paint(g);
         }
 
         // paint boost
         for (FlyingBoost f : boost) {
+            f.setPaused(pause);
             f.paint(g);
         }
 
@@ -219,6 +380,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                     if (v.shoot()) {
                         virusBlasts.add(new Blast(v.x() + 40, v.y() + 55, "spark", 1)); // alien center is +40,+55
                     }
+                    v.setPaused(pause);
                     v.paint(g);
                 }
             }
@@ -226,11 +388,13 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
         // paint tuxBlasts
         for (Blast b : tuxBlasts) {
+            b.setPaused(pause);
             b.paint(g);
         }
 
         // paint alien tuxBlasts
         for (Blast b : virusBlasts) {
+            b.setPaused(pause);
             b.paint(g);
         }
 
@@ -239,6 +403,7 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
             tuxBlasts.add(new Blast(tux.x() + 115, tux.y() + 60, "bit-1", 0));
         }
 
+        tux.setPaused(pause);
         tux.paint(g);
     }
 
@@ -296,7 +461,6 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
                         //explosionSound.play();
                         tuxBlasts.remove(i);
                         v.hit();
-                        System.out.println(v.getShotsRequired());
                         if (v.getShotsRequired() == 0 && v.isAlive()) {
                             v.setAlive(false);
                             v.moveOutOfScreen();
@@ -314,13 +478,9 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
             Blast b = tuxBlasts.get(i);
             for (int x = 0; x < boost.size(); x++) {
                 if (b.hit(boost.get(x))) {
-                    if (boost.get(x).isType("bullet")) {
-                        tux.decreaseReloadTime();
-                        messages.add(new Message("Reload decreased to " + tux.getReloadTime()[1], Color.GREEN));
-                    } else if (boost.get(x).isType("memory")) {
-                        tux.addLife(1);
-                        messages.add(new Message("Memory increased", Color.GREEN));
-                    }
+                    boostHit = true;
+                    updateQuestion();
+                    checkAnswers(x, boost.get(x));
                     tuxBlasts.remove(i);
                     boost.remove(x);
                     x--;
@@ -344,9 +504,6 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
         }
     }
 
-    private void showQuestion() {
-
-    }
 
     private void updateBlastSpeedBar(Graphics g) {
         g.setColor(new Color(130, 130, 130));
@@ -382,7 +539,8 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
             if (Math.random() > 0.5) { // show blast boost randomly
                 boost.add(new Ammo());
             } else {
-                if (tux.lives() < 3) { // show life boost when life is less than 3
+                int lifeThreshold = currentLevel != 1 ? 6 : 3;
+                if (tux.lives() < lifeThreshold) { // show life boost when life is less than 3
                     boost.add(new Memory());
                 }
             }
@@ -467,5 +625,12 @@ public class Game extends Panel implements ActionListener, KeyListener, MouseLis
 
     public void mouseReleased(MouseEvent arg0) {
 
+    }
+
+    public static void main(String[] args) {
+        Game m = new Game();
+        view.component.Frame frame = new Frame("Menu Panel");
+        frame.add(m);
+        frame.setVisible(true);
     }
 }

@@ -42,7 +42,11 @@ public class ImageButton extends JButton {
     }
 
     public void setIcon(String imageName) {
-        setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/" + imageName)))); //img bg
+        try {
+            setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/" + imageName)))); //img bg
+        } catch (Exception e){
+            System.out.println("Can't find image " + imageName);
+        }
     }
 
     public void hover(String hover, String unhover) {

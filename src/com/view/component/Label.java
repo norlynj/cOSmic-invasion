@@ -13,28 +13,28 @@ public class Label extends JLabel {
     }
 
     public Label(String text) {
-        this(text, 25, false, SwingConstants.CENTER);
+        this(text, false);
     }
 
-    public Label(String text, int fontSize, boolean multiLine, int alignment) {
-        setFont(new Font("Arial", Font.BOLD, fontSize));
+    public Label(String text, boolean multiLine) {
+        GraphicsEnvironment ge = null;
+        try{
+            ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/font/retropix.ttf")));
+
+        } catch(FontFormatException e){} catch (IOException e){}
+
+        setFont(new Font("RetroPix Regular", Font.PLAIN, 20));
         setForeground(new Color(255, 255, 255));
         this.multiLine = multiLine;
 
-        //sets the horizontal alignment of the label
-        setHorizontalAlignment(SwingConstants.LEFT);
-        setVerticalAlignment(SwingConstants.CENTER);
         setText(text);
     }
 
     @Override
     public void setText(String text) {
         if (multiLine) {
-            if (center) {
-                text = "<html><center>" + text + "</center></html>"; //align in the center
-            } else {
-                text = "<html>" + text + "</html>";
-            }
+            text = "<html>" + text + "</html>";
         }
         super.setText(text);
     }

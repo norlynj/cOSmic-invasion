@@ -70,12 +70,14 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
         drawButtonsAndsLabels();
 
+
         if (isCutsceneShowing || gameOver) {
             handleSpecialCases(g);
             return;
         }
 
         paintLivesandKills(g);
+        updateBlastSpeedBar(g);
 
         if (boostHit) {
             handleBoostHit(g);
@@ -145,7 +147,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         drawSprites(g, false);
         removals();
         checkCollisions();
-        updateBlastSpeedBar(g);
         updateRewardTimer();
     }
 
@@ -282,7 +283,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                     boostHit = true;
                     powerUp.play();
                     updateQuestion();
-                    checkAnswers(x, boost.get(x));
+                    checkAnswers(boost.get(x));
                     tuxBlasts.remove(i);
                     boost.remove(x);
                     x--;
@@ -358,6 +359,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         pauseExitButton.setVisible(false);
         pauseButton.setVisible(true);
         playButton.setVisible(false);
+        musicOnButton.setVisible(true);
+        musicOffButton.setVisible(false);
 
         // show level number
         if (currentLevel == 2 || currentLevel == 3) {
@@ -493,7 +496,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         return choicePanel;
     }
 
-    private void checkAnswers(int boostNumber, FlyingBoost fBoost) {
+    private void checkAnswers(FlyingBoost fBoost) {
 
         ActionListener buttonActionListener = new ActionListener() {
             @Override

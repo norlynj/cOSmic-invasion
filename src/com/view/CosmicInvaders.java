@@ -54,21 +54,25 @@ public class CosmicInvaders {
         });
         menuPanel.getInstructionsButton().addActionListener(e -> cardLayout.show(contentPane, "howPanel" ));
         menuPanel.getExitButton().addActionListener(e -> System.exit(0));
-        menuPanel.getMusicOnButton().addActionListener(e -> soundClick());
-        menuPanel.getMusicOffButton().addActionListener(e -> soundClick());
+        menuPanel.getMusicOnButton().addActionListener(e -> soundClick(false));
+        menuPanel.getMusicOffButton().addActionListener(e -> soundClick(false));
     }
 
     public void listenToHow() {
-         howPanel.getMusicOnButton().addActionListener(e -> soundClick());
-         howPanel.getMusicOffButton().addActionListener(e -> soundClick());
+         howPanel.getMusicOnButton().addActionListener(e -> soundClick(false));
+         howPanel.getMusicOffButton().addActionListener(e -> soundClick(false));
          howPanel.getHomeButton().addActionListener(e -> cardLayout.show(contentPane, "menuPanel"));
     }
 
     public void listenToMainGame() {
-        game.getHomeButton().addActionListener(e -> cardLayout.show(contentPane, "menuPanel"));
-        game.getMusicOnButton().addActionListener(e -> soundClick());
-        game.getMusicOffButton().addActionListener(e -> soundClick());
+        game.getMusicOnButton().addActionListener(e -> soundClick(true));
+        game.getMusicOffButton().addActionListener(e -> soundClick(true));
         game.getPauseHomeButton().addActionListener(e -> {
+            cardLayout.show(contentPane, "menuPanel");
+            game.mainGameMusic.stop();
+            menuMusic.play();
+        });
+        game.getHomeButton().addActionListener(e -> {
             cardLayout.show(contentPane, "menuPanel");
             game.mainGameMusic.stop();
             menuMusic.play();
@@ -76,14 +80,21 @@ public class CosmicInvaders {
         game.getPauseExitButton().addActionListener(e -> System.exit(0));
     }
 
-    public void soundClick() {
-        menuPanel.musicClick();
-         howPanel.musicClick();
-        if (menuMusic.isPlaying()) {
-            menuMusic.stop();
+    public void soundClick(boolean fromMainGame) {
+        if (fromMainGame) {
+            if (game.mainGameMusic.isPlaying()) {
+                game.mainGameMusic.stop();
+            } else {
+                game.mainGameMusic.play();
+            }
         } else {
-            menuMusic.play();
+            menuPanel.musicClick();
+            howPanel.musicClick();
+            if (menuMusic.isPlaying()) {
+                menuMusic.stop();
+            } else {
+                menuMusic.play();
+            }
         }
     }
-
 }

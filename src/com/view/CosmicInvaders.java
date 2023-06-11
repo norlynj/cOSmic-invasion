@@ -23,7 +23,7 @@ public class CosmicInvaders {
         // create Panels
         menuPanel = new MenuPanel();
         howPanel = new HowPanel();
-        game = new Game();
+        game = new Game(frame);
 
         // setup the content pane and card layout
         contentPane = new Panel(true, "bg/menu.png");

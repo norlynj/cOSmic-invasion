@@ -55,24 +55,8 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
 
     public void startGame(int level) {
         currentLevel = level;
-        setImage("bg/lvl" + currentLevel + "-bg.png");
-        gameOverImage.setVisible(false);
-        successImage.setVisible(false);
-        correct.setVisible(false);
-        wrong.setVisible(false);
 
-
-        tux = new Tux(screenW / 2, 557, currentLevel);
-        tuxBlasts = new ArrayList<Blast>();
-        virusBlasts = new ArrayList<Blast>();
-        boost = new ArrayList<FlyingBoost>();
-        explosions = new ArrayList<Explosion>();
-        messages = new ArrayList<Message>();
-
-        rewardTimer = 0;
-        playing = true;
-        gameOver = false;
-
+        // show level number
         if (currentLevel == 2 || currentLevel == 3) {
             cutSceneBG = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/bg/lvl" + level + "-cutscene.gif")));
         }
@@ -88,6 +72,26 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         });
         timer.setRepeats(false);
         timer.start();
+
+        // set bg image
+        setImage("bg/lvl" + currentLevel + "-bg.png");
+        gameOverImage.setVisible(false);
+        successImage.setVisible(false);
+        correct.setVisible(false);
+        wrong.setVisible(false);
+
+        // create new instance of game objects
+        tux = new Tux(screenW / 2, 557, currentLevel);
+        tuxBlasts = new ArrayList<Blast>();
+        virusBlasts = new ArrayList<Blast>();
+        boost = new ArrayList<FlyingBoost>();
+        explosions = new ArrayList<Explosion>();
+        messages = new ArrayList<Message>();
+
+        rewardTimer = 0;
+        playing = true;
+        gameOver = false;
+
 
         // determine viruses on each level
         String[] colors = new String[]{"blue", "blue", "blue", "blue", "blue", "violet", "violet", "violet", "violet", "violet", "green", "green", "green", "green", "green"};
@@ -298,7 +302,17 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
         drawButtonsAndsLabels();
+        if (isCutsceneShowing) {
+            return;
+        }
+
+        if (gameOver) {
+            gameOverImage.setVisible(true);
+            return;
+        }
+
         paintLivesandKills(g);
 
         if (boostHit) {
@@ -316,7 +330,7 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                 return;
             }
 
-            if (!playing || isCutsceneShowing) {
+            if (!playing) {
                 drawSprites(g, true);
                 return;
             }
@@ -326,9 +340,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                 checkCollisions();
                 updateBlastSpeedBar(g);
                 updateRewardTimer();
-            } else {
-                gameOverImage.setVisible(true);
-                return;
             }
             Toolkit.getDefaultToolkit().sync();
         }

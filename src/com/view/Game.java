@@ -33,9 +33,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
     private QuestionSheet questionSheet;
     Image memoryImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/resources/elements/memory.png"))).getImage();
 
-    Timer t = new Timer(16, this);
+    private Timer t = new Timer(16, this);
     private int rewardTimer, currentLevel;
-    boolean playing, gameOver, boostHit = false, isCutsceneShowing = true;
+    private boolean playing, gameOver, boostHit = false, isCutsceneShowing = true;
 
     public Game() {
         super("bg/lvl1-bg.png");
@@ -51,6 +51,286 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         setListeners();
         addComponentsToFrame();
         setDoubleBuffered(true);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        drawButtonsAndsLabels();
+
+        if (isCutsceneShowing || gameOver) {
+            handleSpecialCases(g);
+            return;
+        }
+
+        paintLivesandKills(g);
+
+        if (boostHit) {
+            handleBoostHit(g);
+        } else {
+            handleRegularGame(g);
+        }
+
+        Toolkit.getDefaultToolkit().sync();
+    }
+
+    private void handleSpecialCases(Graphics g) {
+        if (gameOver) {
+            gameOverImage.setVisible(true);
+            gameOverImage.paint(g);
+        }
+    }
+
+    private void handleBoostHit(Graphics g) {
+        drawSprites(g, true);
+        questionPane.setVisible(true);
+    }
+
+    private void handleRegularGame(Graphics g) {
+        questionPane.setVisible(false);
+        if (shouldStartNextLevel()) {
+            return;
+        }
+
+        if (!playing) {
+            drawSprites(g, true);
+            return;
+        }
+
+        if (isPlayerAlive()) {
+            updateGame(g);
+        }
+    }
+
+    private boolean shouldStartNextLevel() {
+        if (tux.getKills() == 30 && currentLevel == 3) {
+            successImage.setVisible(true);
+            return true;
+        }
+
+        if (tux.getKills() == 20 && currentLevel == 2) {
+            startGame(3);
+            return true;
+        }
+
+        if (tux.getKills() == 15 && currentLevel == 1) {
+            startGame(2);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isPlayerAlive() {
+        return tux.lives() > 0 && !gameOver;
+    }
+
+    private void updateGame(Graphics g) {
+        drawSprites(g, false);
+        removals();
+        checkCollisions();
+        updateBlastSpeedBar(g);
+        updateRewardTimer();
+    }
+
+    private void drawSprites(Graphics g, boolean pause) {
+        // paint messages
+        g.setFont(new Font("Dialog", Font.PLAIN, 20));
+        for (int i = 0; i < messages.size(); i++) {
+            g.setColor(messages.get(i).color());
+            g.drawString(messages.get(i).message(), 18, 160 + 20 * i);
+            messages.get(i).incTime();
+        }
+
+        // paint explosions
+        for (Explosion e : explosions) {
+            e.setPaused(pause);
+            e.paint(g);
+        }
+
+        // paint boost
+        for (FlyingBoost f : boost) {
+            f.setPaused(pause);
+            f.paint(g);
+        }
+
+        // paint viruses
+        for (Virus[] v1 : viruses) {
+            for (Virus v : v1) {
+                if (v.isAlive()) {
+                    if (v.y() > screenH + 10) {
+                        // explosionSound.play();
+                        gameOver = true;
+                    }
+                    if (v.shoot()) {
+                        virusBlasts.add(new Blast(v.x() + 40, v.y() + 55, "spark", 1)); // alien center is +40,+55
+                    }
+                    v.setPaused(pause);
+                    v.paint(g);
+                }
+            }
+        }
+
+        // paint tuxBlasts
+        for (Blast b : tuxBlasts) {
+            b.setPaused(pause);
+            b.paint(g);
+        }
+
+        // paint alien tuxBlasts
+        for (Blast b : virusBlasts) {
+            b.setPaused(pause);
+            b.paint(g);
+        }
+
+        if (tux.checkShot()) {
+            tuxBlasts.add(new Blast(tux.x() + 11, tux.y() + 60, "bit-0", 0));
+            tuxBlasts.add(new Blast(tux.x() + 115, tux.y() + 60, "bit-1", 0));
+        }
+
+        tux.setPaused(pause);
+        tux.paint(g);
+    }
+
+    private void removals() {
+
+        // removes expired messages
+        for (int i = 0; i < messages.size(); i++) {
+            if (messages.get(i).time() <= 0) {
+                messages.remove(i);
+                i--;
+            }
+        }
+
+        // removes expired explosions
+        for (int i = 0; i < explosions.size(); i++) {
+            if (explosions.get(i).time() <= 0) {
+                explosions.remove(i);
+                i--;
+            }
+        }
+
+        // removes tuxBlasts outside of screen
+        for (int i = 0; i < tuxBlasts.size(); i++) {
+            if (tuxBlasts.get(i).y() < -50) {
+                tuxBlasts.remove(i);
+                i--;
+            }
+        }
+        for (int i = 0; i < virusBlasts.size(); i++) {
+            if (virusBlasts.get(i).y() > screenH + 50) {
+                virusBlasts.remove(i);
+                i--;
+            }
+        }
+
+        // removes boost outside of screen
+        for (int i = 0; i < boost.size(); i++) {
+            if (boost.get(i).x() > screenW + 50) {
+                boost.remove(i);
+                i--;
+            }
+        }
+    }
+
+
+    private void checkCollisions() {
+        // compare every alien with every tux blast
+        for (int r = 0; r < viruses.length; r++) {
+            for (int c = 0; c < viruses[r].length; c++) {
+                Virus v = viruses[r][c];
+                for (int i = 0; i < tuxBlasts.size(); i++) {
+                    Blast b = tuxBlasts.get(i);
+                    if (b.hit(v)) {
+                        explosions.add(new Explosion(b));
+                        //explosionSound.play();
+                        tuxBlasts.remove(i);
+                        v.hit();
+                        if (v.getShotsRequired() == 0 && v.isAlive()) {
+                            v.setAlive(false);
+                            v.moveOutOfScreen();
+                            tux.increaseKills();
+                            messages.add(new Message("Virus destroyed", Color.cyan));
+                        }
+                        i--;
+                    }
+                }
+            }
+        }
+
+        // compare every reward with every blast
+        for (int i = 0; i < tuxBlasts.size(); i++) {
+            Blast b = tuxBlasts.get(i);
+            for (int x = 0; x < boost.size(); x++) {
+                if (b.hit(boost.get(x))) {
+                    boostHit = true;
+                    updateQuestion();
+                    checkAnswers(x, boost.get(x));
+                    tuxBlasts.remove(i);
+                    boost.remove(x);
+                    x--;
+                    i--;
+                }
+            }
+        }
+
+        // compare tux with every blast
+        for (int i = 0; i < virusBlasts.size(); i++) {
+            Blast b = virusBlasts.get(i);
+            if (b.hit(tux)) {
+                explosions.add(new Explosion(b));
+                //explosionSound.play();
+                virusBlasts.remove(i);
+                tux.hit();
+                messages.add(new Message("Tux got hit", Color.RED));
+                messages.add(new Message("Reload increased to " + tux.getReloadTime()[1], Color.RED));
+                i--;
+            }
+        }
+    }
+
+
+    private void updateBlastSpeedBar(Graphics g) {
+        g.setColor(new Color(130, 130, 130));
+        g.fillRect(50 - 1, screenH - 100 - 1, tux.getReloadTime()[1] * (200 / tux.getReloadTime()[1]) + 2, 10 + 2);
+        g.setColor(Color.BLUE);
+        g.fillRect(50, screenH - 100,
+                (tux.getReloadTime()[1] - tux.getReloadTime()[0]) * (200 / tux.getReloadTime()[1]), 10);
+    }
+
+    private void paintLivesandKills(Graphics g) {
+        // update kill
+        g.setFont(new Font("Dialog", Font.PLAIN, 20));
+        g.setColor(Color.GREEN);
+        g.drawString(tux.getKills() + "", 120, 115);
+
+        // update Lives
+        Graphics2D g2d = (Graphics2D) g;
+        g.setColor(Color.RED);
+        for (int i = 0; i < tux.lives(); i++) { // for firewall shield token
+            if (currentLevel == 1) {
+                g2d.drawImage(memoryImage, 120 + 30 * i, 60, this);
+            } else if ((currentLevel == 2 || currentLevel == 3) && (i+1) % 2 == 0) {
+                g2d.drawImage(memoryImage, 120 + 30 * i/2, 60, this);
+            }
+        }
+    }
+
+    private void updateRewardTimer() {
+        rewardTimer++;
+
+        if (rewardTimer / 300 == 1) {
+            rewardTimer = 0;
+            if (Math.random() > 0.5) { // show blast boost randomly
+                boost.add(new Ammo());
+            } else {
+                int lifeThreshold = currentLevel != 1 ? 6 : 3;
+                if (tux.lives() < lifeThreshold) { // show life boost when life is less than 3
+                    boost.add(new Memory());
+                }
+            }
+        }
     }
 
     public void startGame(int level) {
@@ -297,252 +577,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         this.add(successImage);
         this.add(questionPane);
 
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        drawButtonsAndsLabels();
-        if (isCutsceneShowing) {
-            return;
-        }
-
-        if (gameOver) {
-            gameOverImage.setVisible(true);
-            return;
-        }
-
-        paintLivesandKills(g);
-
-        if (boostHit) {
-            drawSprites(g, true);
-            questionPane.setVisible(true);
-        } else {
-            questionPane.setVisible(false);
-            if (tux.getKills() == 30 && currentLevel == 3){
-                successImage.setVisible(true);
-            } else if (tux.getKills() == 20 && currentLevel == 2) {
-                startGame(3);
-                return;
-            } else if (tux.getKills() == 15 && currentLevel == 1) {
-                startGame(2);
-                return;
-            }
-
-            if (!playing) {
-                drawSprites(g, true);
-                return;
-            }
-            if (tux.lives() > 0 && !gameOver) {
-                drawSprites(g, false);
-                removals();
-                checkCollisions();
-                updateBlastSpeedBar(g);
-                updateRewardTimer();
-            }
-            Toolkit.getDefaultToolkit().sync();
-        }
-    }
-
-
-    private void drawSprites(Graphics g, boolean pause) {
-        // paint messages
-        g.setFont(new Font("Dialog", Font.PLAIN, 20));
-        for (int i = 0; i < messages.size(); i++) {
-            g.setColor(messages.get(i).color());
-            g.drawString(messages.get(i).message(), 18, 160 + 20 * i);
-            messages.get(i).incTime();
-        }
-
-        // paint explosions
-        for (Explosion e : explosions) {
-            e.setPaused(pause);
-            e.paint(g);
-        }
-
-        // paint boost
-        for (FlyingBoost f : boost) {
-            f.setPaused(pause);
-            f.paint(g);
-        }
-
-        // paint viruses
-        for (Virus[] v1 : viruses) {
-            for (Virus v : v1) {
-                if (v.isAlive()) {
-                    if (v.y() > screenH + 10) {
-                        // explosionSound.play();
-                        gameOver = true;
-                    }
-                    if (v.shoot()) {
-                        virusBlasts.add(new Blast(v.x() + 40, v.y() + 55, "spark", 1)); // alien center is +40,+55
-                    }
-                    v.setPaused(pause);
-                    v.paint(g);
-                }
-            }
-        }
-
-        // paint tuxBlasts
-        for (Blast b : tuxBlasts) {
-            b.setPaused(pause);
-            b.paint(g);
-        }
-
-        // paint alien tuxBlasts
-        for (Blast b : virusBlasts) {
-            b.setPaused(pause);
-            b.paint(g);
-        }
-
-        if (tux.checkShot()) {
-            tuxBlasts.add(new Blast(tux.x() + 11, tux.y() + 60, "bit-0", 0));
-            tuxBlasts.add(new Blast(tux.x() + 115, tux.y() + 60, "bit-1", 0));
-        }
-
-        tux.setPaused(pause);
-        tux.paint(g);
-    }
-
-    private void removals() {
-
-        // removes expired messages
-        for (int i = 0; i < messages.size(); i++) {
-            if (messages.get(i).time() <= 0) {
-                messages.remove(i);
-                i--;
-            }
-        }
-
-        // removes expired explosions
-        for (int i = 0; i < explosions.size(); i++) {
-            if (explosions.get(i).time() <= 0) {
-                explosions.remove(i);
-                i--;
-            }
-        }
-
-        // removes tuxBlasts outside of screen
-        for (int i = 0; i < tuxBlasts.size(); i++) {
-            if (tuxBlasts.get(i).y() < -50) {
-                tuxBlasts.remove(i);
-                i--;
-            }
-        }
-        for (int i = 0; i < virusBlasts.size(); i++) {
-            if (virusBlasts.get(i).y() > screenH + 50) {
-                virusBlasts.remove(i);
-                i--;
-            }
-        }
-
-        // removes boost outside of screen
-        for (int i = 0; i < boost.size(); i++) {
-            if (boost.get(i).x() > screenW + 50) {
-                boost.remove(i);
-                i--;
-            }
-        }
-    }
-
-
-    private void checkCollisions() {
-        // compare every alien with every tux blast
-        for (int r = 0; r < viruses.length; r++) {
-            for (int c = 0; c < viruses[r].length; c++) {
-                Virus v = viruses[r][c];
-                for (int i = 0; i < tuxBlasts.size(); i++) {
-                    Blast b = tuxBlasts.get(i);
-                    if (b.hit(v)) {
-                        explosions.add(new Explosion(b));
-                        //explosionSound.play();
-                        tuxBlasts.remove(i);
-                        v.hit();
-                        if (v.getShotsRequired() == 0 && v.isAlive()) {
-                            v.setAlive(false);
-                            v.moveOutOfScreen();
-                            tux.increaseKills();
-                            messages.add(new Message("Virus destroyed", Color.cyan));
-                        }
-                        i--;
-                    }
-                }
-            }
-        }
-
-        // compare every reward with every blast
-        for (int i = 0; i < tuxBlasts.size(); i++) {
-            Blast b = tuxBlasts.get(i);
-            for (int x = 0; x < boost.size(); x++) {
-                if (b.hit(boost.get(x))) {
-                    boostHit = true;
-                    updateQuestion();
-                    checkAnswers(x, boost.get(x));
-                    tuxBlasts.remove(i);
-                    boost.remove(x);
-                    x--;
-                    i--;
-                }
-            }
-        }
-
-        // compare tux with every blast
-        for (int i = 0; i < virusBlasts.size(); i++) {
-            Blast b = virusBlasts.get(i);
-            if (b.hit(tux)) {
-                explosions.add(new Explosion(b));
-                //explosionSound.play();
-                virusBlasts.remove(i);
-                tux.hit();
-                messages.add(new Message("Tux got hit", Color.RED));
-                messages.add(new Message("Reload increased to " + tux.getReloadTime()[1], Color.RED));
-                i--;
-            }
-        }
-    }
-
-
-    private void updateBlastSpeedBar(Graphics g) {
-        g.setColor(new Color(130, 130, 130));
-        g.fillRect(50 - 1, screenH - 100 - 1, tux.getReloadTime()[1] * (200 / tux.getReloadTime()[1]) + 2, 10 + 2);
-        g.setColor(Color.BLUE);
-        g.fillRect(50, screenH - 100,
-                (tux.getReloadTime()[1] - tux.getReloadTime()[0]) * (200 / tux.getReloadTime()[1]), 10);
-    }
-
-    private void paintLivesandKills(Graphics g) {
-        // update kill
-        g.setFont(new Font("Dialog", Font.PLAIN, 20));
-        g.setColor(Color.GREEN);
-        g.drawString(tux.getKills() + "", 120, 115);
-
-        // update Lives
-        Graphics2D g2d = (Graphics2D) g;
-        g.setColor(Color.RED);
-        for (int i = 0; i < tux.lives(); i++) { // for firewall shield token
-            if (currentLevel == 1) {
-                g2d.drawImage(memoryImage, 120 + 30 * i, 60, this);
-            } else if ((currentLevel == 2 || currentLevel == 3) && (i+1) % 2 == 0) {
-                g2d.drawImage(memoryImage, 120 + 30 * i/2, 60, this);
-            }
-        }
-    }
-
-    private void updateRewardTimer() {
-        rewardTimer++;
-
-        if (rewardTimer / 300 == 1) {
-            rewardTimer = 0;
-            if (Math.random() > 0.5) { // show blast boost randomly
-                boost.add(new Ammo());
-            } else {
-                int lifeThreshold = currentLevel != 1 ? 6 : 3;
-                if (tux.lives() < lifeThreshold) { // show life boost when life is less than 3
-                    boost.add(new Memory());
-                }
-            }
-        }
     }
 
     private void drawButtonsAndsLabels() {

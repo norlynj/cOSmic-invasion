@@ -683,7 +683,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                 break;
             case 32: // space
                 // was 68, not 60
-                tux.setShooting(true);
+                if (tux!=null) {
+                    tux.setShooting(true);
+                }
                 break;
             case 27: // ESC
                 startGame(1);
@@ -707,7 +709,9 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                 }
                 break;
             case 32: // space
-                tux.setShooting(false);
+                if (tux!=null) {
+                    tux.setShooting(false            );
+                }
                 break;
             default:
                 break;

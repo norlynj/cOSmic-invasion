@@ -93,14 +93,17 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
             return;
         }
 
-        if (!playing) {
-            drawSprites(g, true);
+        if (isPlayerAlive()) {
+            updateGame(g);
+        } else {
+            gameOverImage.setVisible(true);
             return;
         }
 
-        if (isPlayerAlive()) {
-            updateGame(g);
+        if (!playing) {
+            drawSprites(g, true);
         }
+
     }
 
     private boolean shouldStartNextLevel() {

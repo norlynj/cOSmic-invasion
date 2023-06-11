@@ -5,7 +5,7 @@ import view.component.Panel;
 
 import java.awt.*;
 
-public class CosmicInvaders {
+public class CosmicInvasion {
     private Frame frame;
     private MenuPanel menuPanel;
     private HowPanel howPanel;
@@ -15,7 +15,7 @@ public class CosmicInvaders {
 
     AudioPlayer menuMusic = new AudioPlayer("bgmusic.wav");
 
-    public CosmicInvaders(){
+    public CosmicInvasion(){
         menuMusic.play();
         menuMusic.loop();
         frame = new Frame("Cosmic Invasion");

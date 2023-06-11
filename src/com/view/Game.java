@@ -191,7 +191,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
                 JButton clickedButton = (JButton) e.getSource();
 
                 if (questionSheet.correctChoice.equals(clickedButton.getName())) {
-                    System.out.println(fBoost);
                     if (fBoost != null && fBoost.isType("bullet")) {
 
                         tux.decreaseReloadTime();
@@ -298,7 +297,6 @@ public class Game extends view.component.Panel implements ActionListener, KeyLis
         drawButtonsAndsLabels();
 
         if (boostHit) {
-            g.drawImage(memoryImage, 0, 0, null);
             questionPane.setVisible(true);
         } else {
             questionPane.setVisible(false);

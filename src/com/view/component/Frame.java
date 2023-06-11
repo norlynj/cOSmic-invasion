@@ -7,7 +7,7 @@ import java.util.Objects;
 public class  Frame extends JFrame {
     JWindow window = new JWindow();
     public Frame(String name) {
-//        loadImage("bg/splashscreen.gif");
+        loadImage("bg/splashscreen.gif");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         getRootPane().setWindowDecorationStyle(JRootPane.NONE); // Remove system title bar

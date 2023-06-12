@@ -20,7 +20,7 @@ public class Label extends JLabel {
         GraphicsEnvironment ge = null;
         try{
             ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/font/retropix.ttf")));
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/resources/font/retropix.ttf")));
 
         } catch(FontFormatException e){} catch (IOException e){}
 

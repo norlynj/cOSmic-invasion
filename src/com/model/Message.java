@@ -21,10 +21,6 @@ public class Message {
 		this(message, 100, c);
 	}
 
-	public Message(String message) {
-		this(message, 100);
-	}
-
 	public void incTime() {
 		time--;
 	}

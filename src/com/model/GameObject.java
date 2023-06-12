@@ -78,24 +78,7 @@ public class GameObject {
     public int y() {
         return y;
     }
-
-    public void y(int y) {
-        this.y = y;
-    }
-
-    public double width() {
-        return width;
-    }
-
-    public double height() {
-        return height;
-    }
-
     public void setPaused(boolean paused) {
         this.paused = paused;
-    }
-
-    public boolean isPaused() {
-        return paused;
     }
 }

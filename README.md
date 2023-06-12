@@ -1,4 +1,4 @@
-CMSC 125 OS Game
+## CMSC 125 OS Game
 - program name: cOSmic invasion
 - developers: Norlyn Jane Castillo, Charissa Mae Madriaga, Jannah Esplanada
 
@@ -34,3 +34,4 @@ For Windows:
 ```
 java -cp ".;lib/*" Main
 ```
+[Screencast from Sunday, 11 June, 2023 09:46:32 PM PST.webm](https://github.com/norlynj/cOSmic-invasion/assets/80614435/16a20974-e6ad-41f1-b50d-839008d59eee)

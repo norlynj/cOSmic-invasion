@@ -1,6 +1,21 @@
-## CMSC 125 OS Game
+# cOSmic invasion
 - program name: cOSmic invasion
 - developers: Norlyn Jane Castillo, Charissa Mae Madriaga, Jannah Esplanada
+
+## Overview
+In this epic space invader game, you play as Tux, the defender of an
+advanced operating system. Your mission is to protect the system from the
+onslaught of deadly viruses that threaten to corrupt and destroy it.
+
+As you progress through the game's three levels, you'll face increasingly
+challenging waves of viruses, each with their own unique abilities and
+weaknesses. You'll need to use your advanced weapons maneuverability and
+wit on OS concepts to dodge incoming attacks and take down your enemies.
+
+Along the way, you'll collect special tokens that represent your
+achievements in the game. These tokens can be used to unlock new ship
+upgrades and abilities, giving you an even greater advantage in the fight
+against the viruses.
 
 ## 🛠️ How to compile and run the source code
 

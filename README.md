@@ -42,8 +42,6 @@ For Linux:
 ```
 java -cp .:lib/*:. Main
 ```
-------
-
 
 For Windows:
 ```

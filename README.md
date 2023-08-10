@@ -47,4 +47,6 @@ For Windows:
 ```
 java -cp ".;lib/*" Main
 ```
-[cOSmic-invasion](https://github.com/norlynj/cOSmic-invasion/assets/80614435/16a20974-e6ad-41f1-b50d-839008d59eee)
+
+[Screencast from Sunday, 11 June, 2023 09:46:32 PM PST.webm](https://github.com/norlynj/cOSmic-invasion/assets/80614435/c8ff5b05-e2d9-439d-8710-74bde27d58bb)
+
